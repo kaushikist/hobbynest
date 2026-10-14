@@ -1,0 +1,136 @@
+<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Saved | HobbyNest</title>
+  <link rel="stylesheet" href="../../styles/global.css?v=12">
+  <link rel="stylesheet" href="../../styles/chatbot.css?v=12">
+</head><body data-role="learner"><aside class="sidebar"><div class="logo">Hobby<span>Nest</span></div><div class="nav-title">LEARN</div><a href="./user-dashboard.html" class="nav-item "><span class="nav-icon">⌂</span>Dashboard</a><a href="./explore.html" class="nav-item "><span class="nav-icon">◈</span>Explore</a><a href="./my-courses.html" class="nav-item "><span class="nav-icon">▣</span>My Learning</a><a href="./schedule.html" class="nav-item "><span class="nav-icon">◷</span>Schedule</a><a href="./my-progress.html" class="nav-item "><span class="nav-icon">↗</span>My Progress</a><a href="./saved.html" class="nav-item active"><span class="nav-icon">♡</span>Saved</a><a href="./socials.html" class="nav-item "><span class="nav-icon">✦</span>Socials</a><a href="./nearby-meetups.html" class="nav-item "><span class="nav-icon">⌖</span>Nearby Meetups</a><a href="./messages.html" class="nav-item "><span class="nav-icon">✉</span>Messages</a><a href="./profile.html" class="nav-item "><span class="nav-icon">◎</span>Profile</a><a href="./settings.html" class="nav-item "><span class="nav-icon">⚙</span>Settings</a><button class="nav-item logout-nav" type="button" data-logout><span class="nav-icon">↪</span>Log out</button><div class="sidebar-note"><small>KEEP EXPLORING</small><strong>Learning something new never goes out of style.</strong></div></aside><main class="main"><header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div class="search"><span>⌕</span><input placeholder="Search courses, skills or hobbies..."></div><div class="profile"><div class="profile-info"><strong>My account</strong><span>HobbyNest</span></div><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""></div></header><div class="content"><div class="eyebrow">Keep for later</div><h1>Saved</h1><p class="intro">Classes you've saved for later, and meetups you're going to.</p><div class="tabs"><button class="tab active" data-filter="all">All</button><button class="tab" data-filter="course">Courses</button><button class="tab" data-filter="activity">Activities</button></div><div class="grid" id="savedGrid"><p class="muted">Loading saved classes…</p></div><div class="empty" id="savedEmpty">Nothing saved yet. Open a class and tap <strong>♡ Save for later</strong>.<br><br><a class="btn" href="./explore.html">Explore classes →</a></div></div></main><div class="toast" id="toast"></div><script src="../../js/ui.js?v=12"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+  <script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script>
+(async function () {
+    const grid = document.getElementById("savedGrid");
+    const empty = document.getElementById("savedEmpty");
+    const tabs = document.querySelectorAll(".tabs .tab");
+    let user = null;
+    let courses = [];
+    let names = {};
+    let activeTab = "all";
+
+    let meetups = [];
+
+    function courseCard(course) {
+        const meta = HN.categoryMeta(course.category);
+        return `
+            <article class="card" data-search="${HN.escapeHTML(course.title + " " + (course.category || ""))}"
+                onclick="window.location.href='${HN.courseUrl(course.id)}'">
+                <img src="${HN.escapeHTML(HN.courseImage(course))}" data-fallback="${HN.escapeHTML(HN.categoryMeta(course.category).img)}" alt="" loading="lazy">
+                <div class="card-body">
+                    <span class="tag pink">${HN.escapeHTML(meta.label)}</span>
+                    <h3>${HN.escapeHTML(course.title)}</h3>
+                    <p>By ${HN.escapeHTML(names[course.educator_id] || "HobbyNest educator")} · ${HN.formatFee(course.fee)}</p>
+                    <div class="card-footer">
+                        <span>View class →</span>
+                        <button class="btn small danger" type="button" data-unsave="${course.id}">Remove</button>
+                    </div>
+                </div>
+            </article>`;
+    }
+
+    function meetupCard(meetup) {
+        const meta = HN.meetupMeta(meetup.category);
+        const when = HN.meetupWhen(meetup);
+        return `
+            <article class="card" data-search="${HN.escapeHTML(meetup.title + " " + (meetup.venue || "") + " " + meta.label)}"
+                onclick="window.location.href='./nearby-meetups.html?id=${meetup.id}'">
+                <div style="height:175px;display:grid;place-items:center;font-size:60px;background:linear-gradient(135deg,#f2efff,#fff1f7)">${meta.emoji}</div>
+                <div class="card-body">
+                    <span class="tag">Meetup · ${HN.escapeHTML(meta.label)}</span>
+                    <h3>${HN.escapeHTML(meetup.title)}</h3>
+                    <p>📅 ${HN.escapeHTML(when.date)} · ${HN.escapeHTML(when.time)}</p>
+                    <p>📍 ${HN.escapeHTML(meetup.venue || "Venue in details")}</p>
+                    <div class="card-footer"><span>You're going ✓</span><span>→</span></div>
+                </div>
+            </article>`;
+    }
+
+    function render() {
+        const showCourses = activeTab !== "activity";
+        const showMeetups = activeTab !== "course";
+        const cards = (showCourses ? courses.map(courseCard) : []).concat(showMeetups ? meetups.map(meetupCard) : []);
+        grid.innerHTML = cards.join("");
+        if (activeTab === "activity") {
+            empty.innerHTML = 'Meetups you\'re going to will show up here.<br><br><a class="btn" href="./nearby-meetups.html">Find a meetup →</a>';
+        } else {
+            empty.innerHTML = 'Nothing saved yet. Open a class and tap <strong>♡ Save for later</strong>.<br><br><a class="btn" href="./explore.html">Explore classes →</a>';
+        }
+        empty.classList.toggle("show", cards.length === 0);
+    }
+
+    // Upcoming meetups I've joined (ignored if meetups aren't set up yet).
+    async function loadMeetups() {
+        const { data: regs, error } = await supabaseClient
+            .from("meetup_registrations").select("meetup_id").eq("user_id", user.id);
+        if (error || !regs.length) return;
+        const { data } = await supabaseClient.from("meetups").select(HN.MEETUP_COLUMNS)
+            .in("id", regs.map(r => r.meetup_id))
+            .gte("starts_at", new Date(Date.now() - 3 * 3600e3).toISOString())
+            .order("starts_at", { ascending: true });
+        meetups = data || [];
+    }
+
+    tabs.forEach(tab => tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        activeTab = tab.dataset.filter;
+        render();
+    }));
+
+    // Capture phase, so "Remove" is handled before the card's own click opens the class.
+    grid.addEventListener("click", async event => {
+        const button = event.target.closest("[data-unsave]");
+        if (!button) return;
+        event.stopPropagation();
+        event.preventDefault();
+        const id = Number(button.dataset.unsave);
+        button.disabled = true;
+        const { error } = await supabaseClient.from("saved_courses").delete()
+            .eq("learner_id", user.id).eq("course_id", id);
+        if (error) {
+            console.error("Unsave error:", error);
+            toast("Couldn't remove it. Please try again.");
+            button.disabled = false;
+            return;
+        }
+        courses = courses.filter(c => c.id !== id);
+        render();
+        toast("Removed from Saved");
+    }, true);
+
+    try {
+        ({ user } = await window.nsReady);
+        const { data: saved, error } = await supabaseClient
+            .from("saved_courses")
+            .select("course_id, saved_at")
+            .eq("learner_id", user.id)
+            .order("saved_at", { ascending: false });
+        if (error) throw error;
+
+        const ids = saved.map(s => s.course_id);
+        if (ids.length) {
+            const { data, error: courseError } = await supabaseClient
+                .from("courses").select(HN.COURSE_COLUMNS).in("id", ids);
+            if (courseError) throw courseError;
+            const byId = Object.fromEntries(data.map(c => [c.id, c]));
+            courses = ids.map(id => byId[id]).filter(Boolean);
+            names = await HN.educatorNames(courses.map(c => c.educator_id));
+        }
+        await loadMeetups().catch(e => console.error("Saved meetups:", e));
+        render();
+    } catch (error) {
+        console.error("Saved page error:", error);
+        grid.innerHTML = '<p class="muted">Couldn\'t load your saved classes. Please refresh the page.</p>';
+    }
+})();
+</script>
+</body></html>

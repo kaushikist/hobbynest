@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify your email | HobbyNest</title>
+    <script>
+        // Remember the link exactly as it was opened, before the Supabase
+        // library reads (and clears) the tokens in the address bar.
+        window.HN_AUTH_URL = window.location.href;
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --blue: #1558c0; --blue-dark: #0f458f; --pink: #e65b9b; --ink: #182235; --muted: #6b7686; --line: #e3e8f0; }
+        body { min-height: 100vh; font-family: Arial, Helvetica, sans-serif; color: var(--ink);
+               background: linear-gradient(135deg, #e4f3ff 0%, #fbe4ef 55%, #eef8ff 100%);
+               display: grid; place-items: center; padding: 24px 16px; }
+        .card { width: 100%; max-width: 460px; background: #fff; border: 1px solid var(--line); border-radius: 16px;
+                padding: 32px 28px; box-shadow: 0 24px 60px rgba(40, 70, 120, .12); text-align: center; }
+        .logo { font-size: 24px; font-weight: 700; color: var(--blue); margin-bottom: 22px; }
+        .logo span { color: var(--pink); }
+        .icon { font-size: 44px; margin-bottom: 10px; }
+        h1 { font-family: Georgia, serif; font-weight: 500; font-size: 26px; margin-bottom: 10px; }
+        p { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+        p strong { color: var(--ink); }
+        .btn { display: inline-block; width: 100%; border: 0; border-radius: 10px; background: var(--blue); color: #fff;
+               padding: 13px 18px; font: inherit; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; margin-top: 6px; }
+        .btn:hover { background: var(--blue-dark); }
+        .btn:disabled { opacity: .6; cursor: wait; }
+        .btn.secondary { background: #fff; color: var(--blue); border: 1px solid #c9d6ea; }
+        .btn:focus-visible, input:focus-visible { outline: 3px solid #9cc3ff; outline-offset: 2px; }
+        form { margin-top: 18px; text-align: left; border-top: 1px solid var(--line); padding-top: 18px; }
+        label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; color: var(--muted); margin-bottom: 6px; }
+        input { width: 100%; padding: 12px; border: 1px solid #d6dde8; border-radius: 10px; font: inherit; font-size: 14px; margin-bottom: 10px; }
+        .note { font-size: 12px; margin: 10px 0 0; }
+        .note.ok { color: #21805e; }
+        .note.err { color: #b4234d; }
+        .steps { text-align: left; background: #f6f9fd; border-radius: 10px; padding: 12px 16px 12px 32px; margin: 4px 0 16px; }
+        .steps li { font-size: 13px; color: var(--ink); line-height: 1.7; }
+        [hidden] { display: none !important; }
+    </style>
+</head>
+<body>
+<main class="card" aria-live="polite">
+    <div class="logo">Hobby<span>Nest</span></div>
+
+    <!-- Working on it -->
+    <section id="stateLoading">
+        <div class="icon">⏳</div>
+        <h1>Checking your link…</h1>
+        <p>This only takes a moment.</p>
+    </section>
+
+    <!-- Link with a code that needs one click (protects against email scanners using it up) -->
+    <section id="stateConfirm" hidden>
+        <div class="icon">✉️</div>
+        <h1>Confirm your email</h1>
+        <p>Click the button below to finish creating your HobbyNest account.</p>
+        <button class="btn" type="button" id="confirmBtn">Confirm my email →</button>
+        <p class="note err" id="confirmError" hidden></p>
+    </section>
+
+    <!-- Success -->
+    <section id="stateSuccess" hidden>
+        <div class="icon">🎉</div>
+        <h1>Registration complete!</h1>
+        <p>Your email <strong id="successEmail"></strong> is verified and your HobbyNest account is ready.</p>
+        <p id="welcomeNote"></p>
+        <ol class="steps" id="nextSteps">
+            <li>Choose how you'll use HobbyNest (learner or educator)</li>
+            <li>Share your city so we can show nearby meetups</li>
+            <li>Start exploring</li>
+        </ol>
+        <a class="btn" id="continueBtn" href="role-select.html">Continue →</a>
+    </section>
+
+    <!-- Problem with the link -->
+    <section id="stateError" hidden>
+        <div class="icon">⚠️</div>
+        <h1 id="errorTitle">This link didn't work</h1>
+        <p id="errorText"></p>
+        <a class="btn" href="login.html">Go to sign in</a>
+    </section>
+
+    <!-- No link at all -->
+    <section id="stateIdle" hidden>
+        <div class="icon">✉️</div>
+        <h1>Check your inbox</h1>
+        <p>We send a verification link when you create an account. Open that email and click the link to finish registering.</p>
+        <a class="btn secondary" href="login.html">I've verified — sign in</a>
+    </section>
+
+    <!-- Get a fresh link -->
+    <form id="resendForm" hidden novalidate>
+        <label for="resendEmail">NEED A NEW VERIFICATION LINK?</label>
+        <input id="resendEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <button class="btn secondary" type="submit" id="resendBtn">Send a new link</button>
+        <p class="note" id="resendNote" hidden></p>
+    </form>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/email-config.js?v=12"></script>
+<script src="../../js/notify.js?v=12"></script>
+<script src="../../js/verify.js?v=12"></script>
+</body>
+</html>

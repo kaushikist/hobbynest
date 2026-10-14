@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Discover Nearby - HobbyNest</title>
+
+    <link
+        rel="stylesheet"
+        href="../../styles/global.css?v=12"
+    >
+
+    <style>
+
+        body {
+            margin: 0;
+
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f6f4ff
+                );
+
+            font-family: Arial, sans-serif;
+
+            display: flex;
+            justify-content: center;
+        }
+
+        .location-container {
+
+            width: min(1000px, 92%);
+
+            padding:
+                60px 0;
+
+        }
+
+        .location-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .location-header h1 {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .location-header p {
+            color: #777;
+        }
+
+        .location-btn {
+
+            display: block;
+
+            margin: 25px auto;
+
+            padding:
+                15px 30px;
+
+            border: none;
+
+            border-radius: 30px;
+
+            background: #7c5cff;
+
+            color: white;
+
+            font-size: 16px;
+
+            cursor: pointer;
+
+        }
+
+        .map-container {
+
+            display: none;
+
+            overflow: hidden;
+
+            border-radius: 22px;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,.08);
+
+            margin-top: 30px;
+
+        }
+
+        .map-container iframe {
+
+            width: 100%;
+
+            height: 350px;
+
+            border: 0;
+
+        }
+
+        .location-info {
+
+            text-align: center;
+
+            margin-top: 20px;
+
+            color: #666;
+
+        }
+
+        .nearby-section {
+
+            display: none;
+
+            margin-top: 40px;
+
+        }
+
+        .nearby-section h2 {
+            margin-bottom: 20px;
+        }
+
+        .nearby-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(180px, 1fr)
+                );
+
+            gap: 18px;
+
+        }
+
+        .nearby-card {
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            border: 1px solid #eee;
+
+            text-align: center;
+
+            transition:
+                transform .2s;
+
+        }
+
+        .nearby-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .nearby-card .icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .done-btn {
+
+            display: none;
+
+            margin: 40px auto 0;
+
+            padding:
+                15px 40px;
+
+            border: none;
+
+            border-radius: 30px;
+
+            background: #111;
+
+            color: white;
+
+            font-size: 16px;
+
+            cursor: pointer;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="location-container">
+
+    <div class="location-header">
+
+        <h1>
+            Discover what's around you 📍
+        </h1>
+
+        <p>
+            Let HobbyNest find activities,
+            classes and communities near you.
+        </p>
+
+    </div>
+
+
+    <button
+        class="location-btn"
+        onclick="detectLocation()"
+    >
+        📍 Detect My Location
+    </button>
+
+
+    <div
+        id="locationInfo"
+        class="location-info"
+    >
+    </div>
+
+
+    <div
+        id="mapContainer"
+        class="map-container"
+    >
+    </div>
+
+
+    <section
+        id="nearbySection"
+        class="nearby-section"
+    >
+
+        <h2>
+            Activities you might enjoy
+        </h2>
+
+
+        <div class="nearby-grid">
+
+            <div class="nearby-card">
+
+                <div class="icon">
+                    💃
+                </div>
+
+                <h3>Dance</h3>
+
+                <p>
+                    Contemporary, Hip-Hop,
+                    Ballet & more
+                </p>
+
+            </div>
+
+
+            <div class="nearby-card">
+
+                <div class="icon">
+                    🎨
+                </div>
+
+                <h3>Art & Craft</h3>
+
+                <p>
+                    Painting, pottery,
+                    sketching & DIY
+                </p>
+
+            </div>
+
+
+            <div class="nearby-card">
+
+                <div class="icon">
+                    🎵
+                </div>
+
+                <h3>Music</h3>
+
+                <p>
+                    Guitar, piano,
+                    vocals & more
+                </p>
+
+            </div>
+
+
+            <div class="nearby-card">
+
+                <div class="icon">
+                    📸
+                </div>
+
+                <h3>Photography</h3>
+
+                <p>
+                    Photography walks
+                    and workshops
+                </p>
+
+            </div>
+
+
+            <div class="nearby-card">
+
+                <div class="icon">
+                    🤝
+                </div>
+
+                <h3>NGOs</h3>
+
+                <p>
+                    Volunteer and
+                    community activities
+                </p>
+
+            </div>
+
+
+            <div class="nearby-card">
+
+                <div class="icon">
+                    🎭
+                </div>
+
+                <h3>Community Events</h3>
+
+                <p>
+                    Open mics, theatre,
+                    reading circles & more
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <button
+        id="doneBtn"
+        class="done-btn"
+        onclick="finishOnboarding()"
+    >
+        Done — Let's Explore ✨
+    </button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/email-config.js?v=12"></script>
+<script src="../../js/notify.js?v=12"></script>
+
+<script>
+
+    let userLatitude = null;
+    let userLongitude = null;
+
+
+    // =========================================
+    // DETECT LOCATION
+    // =========================================
+
+    function detectLocation() {
+
+        const info =
+            document.getElementById("locationInfo");
+
+
+        if (!navigator.geolocation) {
+
+            info.textContent =
+                "Location detection is not supported by your browser.";
+
+            return;
+        }
+
+
+        info.textContent =
+            "Detecting your location...";
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            position => {
+
+                userLatitude =
+                    position.coords.latitude;
+
+                userLongitude =
+                    position.coords.longitude;
+
+
+                info.innerHTML = `
+                    📍 Location detected<br>
+
+                    <small>
+                        ${userLatitude.toFixed(5)},
+                        ${userLongitude.toFixed(5)}
+                    </small>
+                `;
+
+
+                // Show map
+                const mapContainer =
+                    document.getElementById(
+                        "mapContainer"
+                    );
+
+                mapContainer.style.display =
+                    "block";
+
+
+                mapContainer.innerHTML = `
+
+                    <iframe
+                        src="https://www.google.com/maps?q=${userLatitude},${userLongitude}&z=14&output=embed"
+                        loading="lazy"
+                        allowfullscreen
+                    ></iframe>
+
+                `;
+
+
+                // Show activity categories
+                document.getElementById(
+                    "nearbySection"
+                ).style.display = "block";
+
+
+                // Show Done button
+                document.getElementById(
+                    "doneBtn"
+                ).style.display = "block";
+
+            },
+
+
+            error => {
+
+                console.error(error);
+
+                info.textContent =
+                    "We couldn't detect your location. Please allow location access and try again.";
+
+            }
+
+        );
+
+    }
+
+
+    // =========================================
+    // FINISH ONBOARDING
+    // =========================================
+
+    async function finishOnboarding() {
+
+        if (
+            userLatitude === null ||
+            userLongitude === null
+        ) {
+
+            alert(
+                "Please detect your location first."
+            );
+
+            return;
+        }
+
+
+        const doneBtn =
+            document.getElementById("doneBtn");
+
+
+        doneBtn.disabled = true;
+        doneBtn.textContent =
+            "Saving...";
+
+
+        // Get logged-in user
+        const {
+            data: {
+                user
+            },
+            error: userError
+        } =
+            await supabaseClient.auth.getUser();
+
+
+        if (userError || !user) {
+
+            alert(
+                "Your session has expired. Please log in again."
+            );
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        // =========================================
+        // SAVE LOCATION + COMPLETE ONBOARDING
+        // =========================================
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("profiles")
+                .update({
+
+                    latitude:
+                        userLatitude,
+
+                    longitude:
+                        userLongitude,
+
+                    onboarding_complete:
+                        true,
+
+                    tutorial_completed:
+                        false
+
+                })
+                .eq(
+                    "id",
+                    user.id
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Onboarding update error:",
+                error
+            );
+
+            alert(
+                "Unable to complete onboarding: " +
+                error.message
+            );
+
+            doneBtn.disabled = false;
+            doneBtn.textContent =
+                "Done — Let's Explore ✨";
+
+            return;
+        }
+
+
+        // Registration finished → send the welcome email (once per account;
+        // skipped quietly if email isn't set up). Short timeout so it never blocks.
+        if (window.HNNotify) {
+            await HNNotify.send("welcome", {}, { timeoutMs: 4000 });
+        }
+
+
+        // =========================================
+        // GET ROLE FROM SUPABASE
+        // =========================================
+
+        const {
+            data: profile,
+            error: profileError
+        } =
+            await supabaseClient
+                .from("profiles")
+                .select("role")
+                .eq("id", user.id)
+                .single();
+
+
+        if (profileError || !profile) {
+
+            alert(
+                "Unable to load your profile."
+            );
+
+            doneBtn.disabled = false;
+            doneBtn.textContent =
+                "Done — Let's Explore ✨";
+
+            return;
+        }
+
+
+        // =========================================
+        // REDIRECT USING BACKEND ROLE
+        // =========================================
+
+        if (profile.role === "educator") {
+
+            window.location.href =
+                "../instructor/instructor-dashboard.html";
+
+        } else {
+
+            window.location.href =
+                "../user/user-dashboard.html";
+
+        }
+
+    }
+
+
+
+    // =========================================
+    // ON LOAD: CHECK SESSION
+    // =========================================
+
+    (async function () {
+
+        const { data: { user } } =
+            await supabaseClient.auth.getUser();
+
+        if (!user) {
+            window.location.replace("login.html");
+            return;
+        }
+
+        const { data: profile } =
+            await supabaseClient
+                .from("profiles")
+                .select("role, onboarding_complete")
+                .eq("id", user.id)
+                .single();
+
+        // Already onboarded: don't redo it (it would reset the tutorial).
+        if (profile?.onboarding_complete) {
+            window.location.replace(
+                profile.role === "educator"
+                    ? "../instructor/instructor-dashboard.html"
+                    : "../user/user-dashboard.html"
+            );
+        }
+
+    })();
+
+</script>
+
+</body>
+
+</html>

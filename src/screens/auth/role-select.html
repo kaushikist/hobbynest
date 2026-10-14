@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Choose Your Role - HobbyNest</title>
+
+    <link
+        rel="stylesheet"
+        href="../../styles/global.css?v=12"
+    >
+
+    <style>
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f5f7ff
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-family: Arial, sans-serif;
+        }
+
+        .role-container {
+            width: min(900px, 92%);
+            text-align: center;
+        }
+
+        .role-container h1 {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .role-container p {
+            color: #777;
+            margin-bottom: 40px;
+        }
+
+        .role-cards {
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 25px;
+        }
+
+        .role-card {
+            background: white;
+
+            border: 2px solid #eee;
+            border-radius: 24px;
+
+            padding: 45px 30px;
+
+            cursor: pointer;
+
+            transition:
+                transform .25s,
+                border .25s,
+                box-shadow .25s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+
+            box-shadow:
+                0 15px 35px
+                rgba(0,0,0,.08);
+        }
+
+        .role-card.selected {
+            border-color: #7c5cff;
+
+            box-shadow:
+                0 15px 40px
+                rgba(124,92,255,.18);
+        }
+
+        .role-icon {
+            font-size: 55px;
+            margin-bottom: 20px;
+        }
+
+        .role-card h2 {
+            margin-bottom: 10px;
+        }
+
+        .role-card p {
+            margin: 0;
+        }
+
+        .continue-btn {
+            margin-top: 35px;
+
+            padding: 15px 40px;
+
+            border: none;
+            border-radius: 30px;
+
+            background: #7c5cff;
+            color: white;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+        .continue-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        @media(max-width:700px) {
+
+            .role-cards {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <main class="role-container">
+
+        <h1>What brings you to HobbyNest?</h1>
+
+        <p>
+            Choose how you want to use HobbyNest.
+        </p>
+
+        <div class="role-cards">
+
+            <div
+                class="role-card"
+                data-role="learner"
+                onclick="selectRole(this)"
+            >
+
+                <div class="role-icon">
+                    🎓
+                </div>
+
+                <h2>Student</h2>
+
+                <p>
+                    Discover classes, learn new skills,
+                    meet people and track your progress.
+                </p>
+
+            </div>
+
+
+            <div
+                class="role-card"
+                data-role="educator"
+                onclick="selectRole(this)"
+            >
+
+                <div class="role-icon">
+                    👩‍🏫
+                </div>
+
+                <h2>Educator</h2>
+
+                <p>
+                    Create classes, teach students
+                    and manage your extracurricular programs.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="continue-btn"
+            id="continueBtn"
+            onclick="continueRole()"
+            disabled
+        >
+            Continue →
+        </button>
+
+    </main>
+
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+
+<script>
+
+let selectedRole = null;
+
+const continueBtn =
+    document.getElementById("continueBtn");
+
+
+// ======================================
+// SELECT ROLE
+// ======================================
+
+function selectRole(card) {
+
+    // Get role from the card
+    selectedRole =
+        card.dataset.role;
+
+    // Remove selection from all cards
+    document
+        .querySelectorAll(".role-card")
+        .forEach(item => {
+            item.classList.remove("selected");
+        });
+
+    // Select clicked card
+    card.classList.add("selected");
+
+    // Enable continue button
+    continueBtn.disabled = false;
+}
+
+
+// ======================================
+// SAVE ROLE + CONTINUE
+// ======================================
+
+async function continueRole() {
+
+    if (!selectedRole) {
+
+        alert(
+            "Please select a role first."
+        );
+
+        return;
+    }
+
+
+    continueBtn.disabled = true;
+    continueBtn.textContent = "Saving...";
+
+
+    // Get currently logged-in user
+    const {
+        data: {
+            user
+        },
+        error: userError
+    } =
+        await supabaseClient.auth.getUser();
+
+
+    // No active session
+    if (userError || !user) {
+
+        alert(
+            "Your session has expired. Please log in again."
+        );
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    // Save role in Supabase
+    const {
+        error
+    } =
+        await supabaseClient
+            .from("profiles")
+            .update({
+                role: selectedRole
+            })
+            .eq("id", user.id);
+
+
+    // Handle database error
+    if (error) {
+
+        console.error(
+            "Role update error:",
+            error
+        );
+
+        alert(
+            "Could not save your role. Please try again."
+        );
+
+        continueBtn.disabled = false;
+        continueBtn.textContent =
+            "Continue →";
+
+        return;
+    }
+
+
+    // Role successfully saved
+    window.location.href =
+        "location.html";
+}
+
+
+
+// ======================================
+// ON LOAD: CHECK SESSION + PRE-SELECT ROLE
+// ======================================
+
+(async function () {
+
+    const { data: { user } } =
+        await supabaseClient.auth.getUser();
+
+    if (!user) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    const { data: profile } =
+        await supabaseClient
+            .from("profiles")
+            .select("role, onboarding_complete")
+            .eq("id", user.id)
+            .single();
+
+    if (!profile) return;
+
+    // Already onboarded: role is locked, go to the dashboard.
+    if (profile.onboarding_complete) {
+        window.location.replace(
+            profile.role === "educator"
+                ? "../instructor/instructor-dashboard.html"
+                : "../user/user-dashboard.html"
+        );
+        return;
+    }
+
+    // Pre-select the role chosen on the signup form.
+    const card =
+        document.querySelector(`.role-card[data-role="${profile.role}"]`);
+
+    if (card) selectRole(card);
+
+})();
+
+</script>
+</body>
+
+</html>

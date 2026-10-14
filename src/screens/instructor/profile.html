@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Educator Profile | HobbyNest</title>
+  <link rel="stylesheet" href="../../styles/global.css?v=13">
+  <link rel="stylesheet" href="../../styles/chatbot.css?v=13">
+  <style>
+    .profile-page { max-width: 1040px; }
+    .profile-card { border:1px solid #e1e5eb; background:#fff; padding:24px; margin-bottom:20px; }
+    .profile-avatar-row { display:flex; gap:18px; align-items:center; margin-bottom:24px; flex-wrap:wrap; }
+    .profile-avatar { width:88px; height:88px; border-radius:50%; object-fit:cover; border:1px solid #e1e5eb; background:#eef5ff; }
+    .profile-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .profile-field { min-width:0; }
+    .profile-field.full { grid-column:1/-1; }
+    .profile-field label { display:block; font-size:12px; font-weight:700; margin-bottom:7px; }
+    .profile-field input,.profile-field textarea,.profile-field select { width:100%; min-width:0; padding:12px; border:1px solid #dfe4eb; background:#fff; color:#182235; }
+    .profile-field input:focus,.profile-field textarea:focus,.profile-field select:focus { outline:2px solid #e65b9b; outline-offset:1px; }
+    .profile-status { min-height:22px; margin:12px 0; font-size:13px; }
+    @media(max-width:640px) { .profile-form-grid { grid-template-columns:1fr; } .profile-field.full { grid-column:auto; } .profile-card { padding:16px; } }
+  </style>
+</head>
+<body data-role="educator">
+  <aside class="sidebar">
+    <div class="logo">Hobby<span>Nest</span></div>
+    <div class="nav-title">TEACH</div>
+    <a href="instructor-dashboard.html" class="nav-item"><span class="nav-icon">⌂</span>Dashboard</a>
+    <a href="instructor-dashboard.html#classes" class="nav-item"><span class="nav-icon">▣</span>My Classes</a>
+    <a href="recorded-lectures.html" class="nav-item"><span class="nav-icon">▶</span>Recorded Lectures</a>
+    <a href="instructor-dashboard.html#sessions" class="nav-item"><span class="nav-icon">◷</span>Upcoming Sessions</a>
+    <a href="profile.html" class="nav-item active"><span class="nav-icon">◎</span>Profile</a>
+    <a href="instructor-dashboard.html#settings" class="nav-item"><span class="nav-icon">⚙</span>Settings</a>
+    <a href="#" class="nav-item" data-logout><span class="nav-icon">↪</span>Logout</a>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left"><button class="mobile-menu" id="mobileMenu" type="button" aria-label="Toggle navigation">☰</button><a href="instructor-dashboard.html" class="back-link">← Back to dashboard</a></div>
+      <div class="profile"><div class="profile-info"><strong>My account</strong><span>Educator · HobbyNest</span></div><img class="current-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Educator profile"></div>
+    </header>
+    <div class="content profile-page">
+      <div class="eyebrow">EDUCATOR IDENTITY</div><h1>My profile</h1>
+      <p class="intro">Keep your teaching profile up to date so learners know who you are and what you teach.</p>
+      <section class="profile-card">
+        <div class="profile-avatar-row">
+          <img id="eduAvatarPreview" class="profile-avatar" alt="Your profile photo">
+          <div><label class="btn secondary" for="eduAvatarInput" style="cursor:pointer">Change photo</label><input id="eduAvatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden><p class="muted" style="margin-top:8px">JPG, PNG or WebP · up to 2 MB</p></div>
+        </div>
+        <div class="profile-form-grid">
+          <div class="profile-field"><label for="profileName">Full name</label><input id="profileName" maxlength="100" autocomplete="name" required></div>
+          <div class="profile-field"><label for="profileEmail">Email</label><input id="profileEmail" type="email" disabled></div>
+          <div class="profile-field full"><label for="profileBio">Bio</label><textarea id="profileBio" rows="4" maxlength="1500" placeholder="Share your teaching background and approach"></textarea></div>
+          <div class="profile-field"><label for="profileSpecialisation">Specialisation</label><input id="profileSpecialisation" maxlength="120" placeholder="e.g. Guitar and music theory"></div>
+          <div class="profile-field"><label for="profileFormat">Teaching format</label><select id="profileFormat"><option value="Online + In-person">Online + In-person</option><option value="Online">Online</option><option value="In-person">In-person</option></select></div>
+          <div class="profile-field"><label for="profileExperience">Experience</label><input id="profileExperience" maxlength="100" placeholder="e.g. 5 years"></div>
+          <div class="profile-field"><label for="profileCity">Location</label><input id="profileCity" maxlength="120" placeholder="e.g. Pune"></div>
+        </div>
+        <p id="eduProfileStatus" class="profile-status" role="status" aria-live="polite"></p>
+        <button class="btn" id="saveProfile" type="button">Save profile</button>
+      </section>
+      <section class="profile-card">
+        <div class="eyebrow">ACCOUNT</div><h2>Profile visibility</h2>
+        <p class="muted" style="margin-top:8px">Your name, photo, bio and specialisation may be shown to learners on the classes you teach.</p>
+        <a class="btn secondary" href="instructor-dashboard.html#settings" style="margin-top:16px">Manage account settings →</a>
+      </section>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+  <script src="../../js/supabase.js?v=13"></script><script src="../../js/guard.js?v=13"></script><script src="../../js/logout.js?v=13"></script><script src="../../js/chatbot.js?v=13"></script><script src="../../js/courses.js?v=13"></script><script src="../../js/educator-profile.js?v=13"></script>
+  <script>document.getElementById("mobileMenu")?.addEventListener("click", () => document.querySelector(".sidebar")?.classList.toggle("open"));</script>
+</body></html>

@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1"
+    >
+
+    <title>Nearby Meetups | HobbyNest</title>
+
+    <link
+        rel="stylesheet"
+        href="../../styles/global.css?v=12"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../../styles/chatbot.css?v=12"
+    >
+
+    <style>
+
+        .meetup-layout {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .meetup-header {
+            margin-bottom: 30px;
+        }
+
+        .meetup-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .location-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 9px 14px;
+            border-radius: 20px;
+            background: #f4f1ff;
+            color: #6d52d9;
+            font-size: 13px;
+        }
+
+
+        /* FILTERS */
+
+        .meetup-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .meetup-filter {
+            border: 1px solid #e5e5e5;
+            background: white;
+            color: #555;
+            padding: 9px 17px;
+            border-radius: 22px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .meetup-filter:hover {
+            border-color: #7c5cff;
+            color: #7c5cff;
+        }
+
+        .meetup-filter.active {
+            background: #7c5cff;
+            color: white;
+            border-color: #7c5cff;
+        }
+
+
+        /* GRID */
+
+        .meetup-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+        @media (max-width:900px) { .meetup-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+        @media (max-width:580px) { .meetup-grid { grid-template-columns:minmax(0,1fr); } .meetup-layout { width:100%; } .modal-box { padding:20px; max-height:90vh; overflow:auto; } .meetup-modal-visual { margin:-20px -20px 18px; } .meetup-footer { flex-wrap:wrap; } }
+
+
+        /* CARD */
+
+        .meetup-card {
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 18px;
+            overflow: hidden;
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .meetup-card:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 12px 30px rgba(0,0,0,.08);
+        }
+
+        .meetup-visual { height:170px; overflow:hidden; background:#edf2f8; }
+        .meetup-visual img { width:100%; height:100%; display:block; object-fit:cover; transition:transform .25s ease; }
+        .meetup-card:hover .meetup-visual img { transform:scale(1.04); }
+        .meetup-modal-visual { height:170px; margin:-28px -28px 20px; overflow:hidden; border-radius:20px 20px 0 0; }
+        .meetup-modal-image { width:100%; height:100%; object-fit:cover; display:block; }
+        .field-error { display:block; color:#b4234d; font-size:12px; margin-top:5px; }
+        #meetupForm [aria-invalid="true"] { border-color:#b4234d; box-shadow:0 0 0 2px rgba(180,35,77,.1); }
+        .meetup-card, .meetup-body, .meetup-footer { min-width:0; }
+        .meetup-description { overflow-wrap:anywhere; }
+
+        .meetup-body {
+            padding: 20px;
+        }
+
+        .meetup-category {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #7c5cff;
+            font-weight: 600;
+        }
+
+        .meetup-body h3 {
+            margin: 7px 0 12px;
+        }
+
+        .meetup-description {
+            color: #777;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .meetup-details {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.9;
+        }
+
+        .meetup-details span {
+            display: block;
+        }
+
+        .meetup-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 17px;
+        }
+
+        .spots {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .meetup-btn { border:0; background:#507db8; color:#fff; padding:10px 15px; border-radius:8px; cursor:pointer; font-family:inherit; font-weight:600; }
+        .meetup-btn:disabled { opacity:.55; cursor:not-allowed; }
+        .meetup-btn:focus-visible, .meetup-filter:focus-visible, .join-btn:focus-visible { outline:3px solid #6f9edb; outline-offset:3px; }
+
+        .meetup-btn:hover {
+            opacity: .85;
+        }
+
+
+        /* EMPTY */
+
+        .empty-meetups {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+            color: #777;
+        }
+
+        .empty-illustration { width:56px; height:56px; margin:0 auto 14px; border-radius:50%; background:#eef5ff; border:1px solid #d8e6fa; }
+
+
+        /* MODAL */
+
+        .meetup-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .meetup-modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            width: min(520px, 100%);
+            border-radius: 20px;
+            padding: 28px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-box h2 {
+            margin-right: 30px;
+        }
+
+        .modal-meta {
+            color: #666;
+            line-height: 2;
+            margin: 20px 0;
+        }
+
+        .join-btn {
+            width: 100%;
+            border: none;
+            background: #7c5cff;
+            color: white;
+            padding: 13px;
+            border-radius: 22px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+
+        @media (max-width: 900px) {
+
+            .meetup-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .meetup-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        /* ---------- Batch 6: live meetups ---------- */
+
+        .meetup-header-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .meetup-header-row .location-status { margin-top: 0; }
+
+        .link-btn {
+            border: 0;
+            background: transparent;
+            color: #6d52d9;
+            font: inherit;
+            font-size: 13px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .host-btn { margin-left: auto; border-radius: 22px; padding: 11px 18px; background: #7c5cff; }
+
+        .meetup-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .meetup-toolbar .tabs { margin-bottom: 0; }
+
+        .meetup-toolbar .tab { border-radius: 20px; }
+
+        .meetup-selects { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .meetup-selects select {
+            border: 1px solid #e5e5e5;
+            border-radius: 20px;
+            padding: 8px 12px;
+            background: white;
+            color: #555;
+        }
+
+        .meetup-badge {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: none;
+            letter-spacing: 0;
+            background: #e8fff1;
+            color: #18794e;
+        }
+
+        .meetup-badge.host { background: #fff1f7; color: #b34570; }
+
+        .meetup-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .spots.full { color: #b43d60; font-weight: 600; }
+
+        .meetup-loading { grid-column: 1 / -1; color: #888; padding: 30px 0; }
+
+        .modal-box { max-height: 90vh; overflow: auto; }
+
+        .modal-actions { display: grid; gap: 10px; }
+
+        .modal-actions .join-btn.secondary { background: #f4f1ff; color: #6d52d9; }
+
+        .modal-actions .join-btn.danger { background: #fff0f3; color: #b43d60; }
+
+        .modal-actions .join-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+        .modal-note { font-size: 13px; color: #777; text-align: center; }
+
+        .people-list { margin: 0 0 18px; display: grid; gap: 8px; }
+
+        .person-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .person-row img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+
+        .person-row a { margin-left: auto; font-size: 12px; color: #6d52d9; }
+
+        .host-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+
+        .host-form label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #444; }
+
+        .host-form input,
+        .host-form select,
+        .host-form textarea {
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font: inherit;
+            font-size: 14px;
+        }
+
+        .host-form textarea { min-height: 80px; resize: vertical; }
+
+        .host-form .wide { grid-column: 1 / -1; }
+
+        .pin-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+        .pin-row button {
+            border: 1px solid #ddd6ff;
+            background: #f4f1ff;
+            color: #6d52d9;
+            border-radius: 18px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 12px;
+        }
+
+        .pin-status { font-size: 12px; color: #777; }
+
+        .form-error { color: #b43d60; font-size: 13px; min-height: 18px; }
+
+        @media (max-width: 600px) {
+            .host-form { grid-template-columns: 1fr; }
+            .host-btn { margin-left: 0; }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<aside class="sidebar">
+
+    <div class="logo">
+        Hobby<span>Nest</span>
+    </div>
+
+    <div class="nav-title">
+        LEARN
+    </div>
+
+
+    <a
+        href="./user-dashboard.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">⌂</span>
+        Dashboard
+    </a>
+
+
+    <a
+        href="./explore.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">◈</span>
+        Explore
+    </a>
+
+
+    <a
+        href="./my-courses.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">▣</span>
+        My Learning
+    </a>
+
+
+    <a
+        href="./schedule.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">◷</span>
+        Schedule
+    </a>
+
+
+    <a
+        href="./socials.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">♧</span>
+        Socials
+    </a>
+
+
+    <a
+        href="./nearby-meetups.html"
+        class="nav-item active"
+    >
+        <span class="nav-icon">⌖</span>
+        Nearby Meetups
+    </a>
+
+
+    <a
+        href="./my-progress.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">↗</span>
+        My Progress
+    </a>
+
+
+    <a
+        href="./saved.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">♡</span>
+        Saved
+    </a>
+
+
+    <a
+        href="./messages.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">✉</span>
+        Messages
+    </a>
+
+
+    <a
+        href="./profile.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">◎</span>
+        Profile
+    </a>
+
+
+    <a
+        href="./settings.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">⚙</span>
+        Settings
+    </a>
+
+
+    <button
+        class="nav-item logout-nav"
+        type="button"
+        data-logout
+    >
+        <span class="nav-icon">↪</span>
+        Log out
+    </button>
+
+
+    <div class="sidebar-note">
+
+        <small>
+            KEEP EXPLORING
+        </small>
+
+        <strong>
+            Learning something new never goes out of style.
+        </strong>
+
+    </div>
+
+</aside>
+
+
+<main class="main">
+
+    <header class="topbar">
+
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+
+        <div class="search">
+            <span>⌕</span>
+            <input placeholder="Search meetups, venues or hosts...">
+        </div>
+
+        <div class="profile">
+            <div class="profile-info">
+                <strong>My account</strong>
+                <span>HobbyNest</span>
+            </div>
+            <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
+        </div>
+
+    </header>
+
+
+    <div class="content">
+
+        <div class="meetup-layout">
+
+            <div class="meetup-header">
+
+                <div class="eyebrow">DISCOVER NEARBY</div>
+
+                <h1>Nearby Meetups</h1>
+
+                <p class="intro">
+                    Find workshops, jams and community events happening around you —
+                    or host your own.
+                </p>
+
+                <div class="meetup-header-row">
+                    <div class="location-status" id="locationStatus">Finding your location…</div>
+                    <button class="link-btn" type="button" id="useLocation">Use my current location</button>
+                    <button class="btn host-btn" type="button" id="hostMeetup">＋ Host a meetup</button>
+                </div>
+
+            </div>
+
+
+            <div class="meetup-toolbar">
+
+                <div class="tabs" id="meetupTabs">
+                    <button class="tab active" type="button" data-view="upcoming">Upcoming</button>
+                    <button class="tab" type="button" data-view="going">I'm going</button>
+                    <button class="tab" type="button" data-view="hosting">Hosting</button>
+                </div>
+
+                <div class="meetup-selects">
+                    <select id="radiusSelect" aria-label="Distance">
+                        <option value="5">Within 5 km</option>
+                        <option value="10">Within 10 km</option>
+                        <option value="25" selected>Within 25 km</option>
+                        <option value="50">Within 50 km</option>
+                        <option value="">Any distance</option>
+                    </select>
+                    <select id="sortSelect" aria-label="Sort">
+                        <option value="soonest">Soonest first</option>
+                        <option value="nearest">Nearest first</option>
+                    </select>
+                </div>
+
+            </div>
+
+
+            <div class="meetup-filters" id="meetupFilters"></div>
+
+
+            <section class="meetup-grid" id="meetupGrid">
+                <p class="meetup-loading">Loading meetups…</p>
+            </section>
+
+
+            <div class="empty-meetups" id="emptyMeetups">
+                <div class="empty-illustration" aria-hidden="true"></div>
+                <h3 id="emptyTitle">No meetups found</h3>
+                <p id="emptyText">Try another category or a bigger distance.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- MEETUP DETAILS -->
+
+<div class="meetup-modal" id="meetupModal">
+
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+        <button class="modal-close" type="button" data-close-modal aria-label="Close">×</button>
+
+        <div id="modalIcon" class="meetup-modal-visual" aria-hidden="true"></div>
+
+        <h2 id="modalTitle">Meetup</h2>
+
+        <p id="modalDescription" class="muted" style="font-size:14px;white-space:pre-line"></p>
+
+        <div id="modalMeta" class="modal-meta"></div>
+
+        <div id="modalPeople"></div>
+
+        <div id="modalActions" class="modal-actions"></div>
+
+    </div>
+
+</div>
+
+
+<!-- HOST / EDIT A MEETUP -->
+
+<div class="meetup-modal" id="hostModal">
+
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="hostTitle">
+
+        <button class="modal-close" type="button" data-close-modal aria-label="Close">×</button>
+
+        <h2 id="hostTitle">Host a meetup</h2>
+        <p class="muted" style="font-size:13px">Everyone on HobbyNest can see your meetup and join it.</p>
+
+        <form class="host-form" id="meetupForm" novalidate>
+
+            <div class="wide">
+                <label for="mTitle">Title</label>
+                <input id="mTitle" maxlength="120" required placeholder="e.g. Sunday sketch walk at Bandra Fort">
+            </div>
+
+            <div>
+                <label for="mCategory">Category</label>
+                <select id="mCategory"></select>
+            </div>
+
+            <div>
+                <label for="mCapacity">Max people</label>
+                <input id="mCapacity" type="number" min="1" max="500" value="20" required>
+            </div>
+
+            <div class="wide">
+                <label for="mDescription">What will happen?</label>
+                <textarea id="mDescription" maxlength="2000" placeholder="What to bring, who it's for, how to find the group…"></textarea>
+            </div>
+
+            <div class="wide">
+                <label for="mVenue">Venue / address</label>
+                <input id="mVenue" maxlength="200" required placeholder="e.g. Carter Road Amphitheatre, Bandra West, Mumbai">
+                <div class="pin-row" style="margin-top:8px">
+                    <button type="button" id="findVenue">Find this address</button>
+                    <button type="button" id="pinHere">I'm at the venue now</button>
+                    <span class="pin-status" id="pinStatus">Not on the map yet — distance won't be shown.</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="mDate">Date</label>
+                <input id="mDate" type="date" required>
+            </div>
+
+            <div class="pin-row" style="gap:10px;align-items:flex-end">
+                <div style="flex:1">
+                    <label for="mStart">Starts</label>
+                    <input id="mStart" type="time" value="17:00" required>
+                </div>
+                <div style="flex:1">
+                    <label for="mEnd">Ends</label>
+                    <input id="mEnd" type="time" value="19:00">
+                </div>
+            </div>
+
+            <p class="form-error wide" id="formError"></p>
+
+            <button class="join-btn wide" type="submit" id="saveMeetup">Publish meetup</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script src="../../js/ui.js?v=12"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+<script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script src="../../js/meetups.js?v=12"></script>
+
+</body>
+
+</html>

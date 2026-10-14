@@ -1,0 +1,8 @@
+# Minimal Supabase CLI config so `supabase link` / `supabase functions deploy` work from this folder.
+project_id = "hobbynest"
+
+[functions.delete-account]
+verify_jwt = true
+
+[functions.notify]
+verify_jwt = true

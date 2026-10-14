@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HobbyNest</title>
+</head>
+<body>
+  <p>Opening HobbyNest…</p>
+  <script>
+    // Supabase sends people to the Site URL when a redirect address isn't on its
+    // allow-list. Keep any verification / reset tokens and send them to the right page.
+    (function () {
+      var h = location.hash, q = location.search, base = "src/screens/auth/";
+      if (/type=recovery/.test(h + q)) { location.replace(base + "reset-password.html" + q + h); return; }
+      if (/(^#|&)(access_token|error_description|error_code)=/.test(h) || /[?&](code|token_hash|error_description)=/.test(q)) {
+        location.replace(base + "verify.html" + q + h); return;
+      }
+      location.replace("src/screens/auth/login.html");
+    })();
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url=src/screens/auth/login.html"></noscript>
+</body>
+</html>

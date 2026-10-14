@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Profile | HobbyNest</title>
+  <link rel="stylesheet" href="../../styles/global.css?v=12">
+  <link rel="stylesheet" href="../../styles/chatbot.css?v=12">
+</head><body data-role="learner"><aside class="sidebar"><div class="logo">Hobby<span>Nest</span></div><div class="nav-title">LEARN</div><a href="./user-dashboard.html" class="nav-item "><span class="nav-icon">⌂</span>Dashboard</a><a href="./explore.html" class="nav-item "><span class="nav-icon">◈</span>Explore</a><a href="./my-courses.html" class="nav-item "><span class="nav-icon">▣</span>My Learning</a><a href="./schedule.html" class="nav-item "><span class="nav-icon">◷</span>Schedule</a><a href="./my-progress.html" class="nav-item "><span class="nav-icon">↗</span>My Progress</a><a href="./saved.html" class="nav-item "><span class="nav-icon">♡</span>Saved</a><a href="./socials.html" class="nav-item "><span class="nav-icon">✦</span>Socials</a><a href="./nearby-meetups.html" class="nav-item "><span class="nav-icon">⌖</span>Nearby Meetups</a><a href="./messages.html" class="nav-item "><span class="nav-icon">✉</span>Messages</a><a href="./profile.html" class="nav-item active"><span class="nav-icon">◎</span>Profile</a><a href="./settings.html" class="nav-item "><span class="nav-icon">⚙</span>Settings</a><button class="nav-item logout-nav" type="button" data-logout><span class="nav-icon">↪</span>Log out</button><div class="sidebar-note"><small>KEEP EXPLORING</small><strong>Learning something new never goes out of style.</strong></div></aside><main class="main"><header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div class="search"><span>⌕</span><input placeholder="Search courses, skills or hobbies..."></div><div class="profile"><div class="profile-info"><strong>My account</strong><span>HobbyNest</span></div><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""></div></header><div class="content"><div class="eyebrow">Your identity</div><h1>Profile</h1><p class="intro">This is how other learners and educators see you on HobbyNest.</p>
+<div class="split">
+  <div class="panel">
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:22px">
+      <img id="avatarPreview" alt="" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:1px solid #e1e5eb">
+      <div>
+        <label class="btn secondary" style="cursor:pointer">Change photo<input id="avatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+        <p class="muted" style="margin-top:6px">JPG, PNG or WebP · up to 2 MB</p>
+      </div>
+    </div>
+    <form id="profileForm" class="form-grid" novalidate>
+      <div class="field"><label for="pName">Full name</label><input id="pName" maxlength="100" required></div>
+      <div class="field"><label for="pEmail">Email</label><input id="pEmail" disabled title="Your login email can't be changed here"></div>
+      <div class="field"><label for="pCity">City</label><input id="pCity" maxlength="80" placeholder="e.g. Mumbai"></div>
+      <div class="field"><label for="pStyle">Learning style</label><select id="pStyle"><option value="">Choose…</option><option>Hands-on</option><option>Visual</option><option>Reading</option><option>Mixed</option></select></div>
+      <div class="field full"><label for="pHeadline">Headline</label><input id="pHeadline" maxlength="120" placeholder="e.g. Weekend guitarist · learning watercolour"></div>
+      <div class="field full"><label for="pBio">About me</label><textarea id="pBio" rows="4" maxlength="1000" placeholder="A few lines about you and what you love learning"></textarea></div>
+      <div class="field full"><label for="pInterests">Interests <span class="muted">(separate with commas)</span></label><input id="pInterests" placeholder="Dance, Music, Photography"></div>
+    </form>
+    <p id="profileStatus" class="muted" style="margin-top:12px;min-height:16px"></p>
+    <button class="btn" id="saveProfile" type="button" style="margin-top:8px">Save changes</button>
+    <hr style="margin:28px 0;border:0;border-top:1px solid #eadde2">
+    <section aria-labelledby="deleteAccountHeading"><h2 id="deleteAccountHeading" style="color:#b4234d">Delete account</h2><p class="muted">Permanently delete your HobbyNest account and everything linked to it — profile, enrollments, progress, messages, posts, meetups and photos. This cannot be undone. We'll email you a confirmation once it's done.</p><label for="deleteAccountConfirm" class="muted">Type DELETE to confirm</label><input id="deleteAccountConfirm" autocomplete="off" placeholder="DELETE" style="max-width:260px;display:block;margin:8px 0 12px"><button class="btn" id="deleteAccountButton" type="button" style="background:#b4234d">Permanently delete account</button><p id="deleteAccountStatus" class="muted" role="status" style="margin-top:10px"></p></section>
+  </div>
+  <div class="panel">
+    <h2>My interests</h2>
+    <div id="interestChips" style="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px"></div>
+    <p class="muted">Your interests help HobbyNest suggest classes and, soon, people with similar hobbies in Socials and Nearby Meetups.</p>
+  </div>
+</div>
+</div></main><div class="toast" id="toast"></div><script src="../../js/ui.js?v=12"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+  <script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script src="../../js/email-config.js?v=12"></script>
+<script src="../../js/notify.js?v=12"></script>
+<script src="../../js/account.js?v=12"></script>
+<script src="../../js/profile-page.js?v=12"></script>
+</body></html>

@@ -1,0 +1,47 @@
+<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Schedule | HobbyNest</title>
+  <link rel="stylesheet" href="../../styles/global.css?v=12">
+  <link rel="stylesheet" href="../../styles/chatbot.css?v=12">
+  </head><body data-role="learner"><aside class="sidebar"><div class="logo">Hobby<span>Nest</span></div><div class="nav-title">LEARN</div><a href="./user-dashboard.html" class="nav-item "><span class="nav-icon">⌂</span>Dashboard</a><a href="./explore.html" class="nav-item "><span class="nav-icon">◈</span>Explore</a><a href="./my-courses.html" class="nav-item "><span class="nav-icon">▣</span>My Learning</a><a href="./schedule.html" class="nav-item active"><span class="nav-icon">◷</span>Schedule</a><a href="./my-progress.html" class="nav-item "><span class="nav-icon">↗</span>My Progress</a><a href="./saved.html" class="nav-item "><span class="nav-icon">♡</span>Saved</a><a href="./socials.html" class="nav-item "><span class="nav-icon">✦</span>Socials</a><a href="./nearby-meetups.html" class="nav-item "><span class="nav-icon">⌖</span>Nearby Meetups</a><a href="./messages.html" class="nav-item "><span class="nav-icon">✉</span>Messages</a><a href="./profile.html" class="nav-item "><span class="nav-icon">◎</span>Profile</a><a href="./settings.html" class="nav-item "><span class="nav-icon">⚙</span>Settings</a><button class="nav-item logout-nav" type="button" data-logout><span class="nav-icon">↪</span>Log out</button><div class="sidebar-note"><small>KEEP EXPLORING</small><strong>Learning something new never goes out of style.</strong></div></aside><main class="main"><header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div class="search"><span>⌕</span><input placeholder="Search courses, skills or hobbies..."></div><div class="profile"><div class="profile-info"><strong>My account</strong><span>HobbyNest</span></div><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""></div></header><div class="content"><div class="eyebrow">Plan your week</div><h1>Schedule</h1><p class="intro">Live sessions from the classes you've joined, plus open sessions anyone can attend.</p><section class="section" id="sessionList"><p class="muted">Loading your sessions…</p></section><div class="empty" id="scheduleEmpty">No upcoming live sessions yet. When an educator schedules one for your classes, it will show up here.<br><br><a class="btn" href="./my-courses.html">Go to My Learning →</a></div></div></main><div class="modal-backdrop" id="meetingModal"><div class="modal" style="max-width:760px"><button class="modal-close" id="closeMeeting">×</button>
+    <div class="modal-content"><div class="eyebrow">Ready to join?</div><h2 id="meetingTitle">Live lecture</h2>
+      <p class="intro">Check your camera and microphone, then join — the meeting opens in a new tab.</p><div class="camera-box"><video id="cameraPreview" autoplay muted playsinline></video>
+        <div id="cameraPlaceholder">Camera preview will appear here.</div></div><div style="display:flex;gap:10px;margin:15px 0">
+          
+          </div>
+      <button class="btn" id="joinMeeting">Join now →</button></div></div></div><div class="toast" id="toast"></div><script src="../../js/ui.js?v=12"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+  <script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script>
+(async function () {
+    const list = document.getElementById("sessionList");
+    const empty = document.getElementById("scheduleEmpty");
+    try {
+        await window.nsReady;
+        const sessions = await HN.upcomingSessions();
+        list.innerHTML = sessions.map(session => {
+            const d = HN.sessionDateParts(session.session_date);
+            return `
+                <div class="schedule-card" data-search="${HN.escapeHTML(session.title + " " + session.courseTitle + " " + session.educatorName)}">
+                    <div class="schedule-main">
+                        <div class="date-box"><span>${d.weekday}</span><strong>${d.day}</strong><span>${d.month}</span></div>
+                        <div>
+                            <h3>${HN.escapeHTML(session.title)}</h3>
+                            <p class="muted">${HN.escapeHTML(d.time)} · ${HN.escapeHTML(session.courseTitle)} · ${HN.escapeHTML(session.educatorName)}</p>
+                            ${session.description ? `<p class="muted">${HN.escapeHTML(session.description)}</p>` : ""}
+                        </div>
+                    </div>
+                    <button class="btn" data-join="${HN.escapeHTML(session.title)}" data-link="${HN.escapeHTML(session.meeting_link || "")}">
+                        ${session.meeting_link ? "Join session →" : "Link coming soon"}
+                    </button>
+                </div>`;
+        }).join("");
+        empty.classList.toggle("show", sessions.length === 0);
+    } catch (error) {
+        console.error("Schedule error:", error);
+        list.innerHTML = '<p class="muted">Couldn\'t load your sessions. Please refresh the page.</p>';
+    }
+})();
+</script>
+</body></html>

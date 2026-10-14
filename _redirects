@@ -1,0 +1,13 @@
+# HobbyNest redirects (Netlify). Developer files are not part of the website.
+/database.sql         /404.html  404!
+/seed-demo.sql        /404.html  404!
+/remove-demo.sql      /404.html  404!
+/supabase-check.sql   /404.html  404!
+/README.md            /404.html  404!
+/_headers             /404.html  404!
+/_redirects           /404.html  404!
+/supabase/*           /404.html  404!
+/email-templates/*    /404.html  404!
+/tests/*              /404.html  404!
+/TESTING.txt          /404.html  404!
+/SUPABASE-SETUP.txt    /404.html  404!

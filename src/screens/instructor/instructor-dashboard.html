@@ -1,0 +1,3034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educator Dashboard | HobbyNest</title>
+
+    <link rel="stylesheet" href="../../styles/global.css?v=12">
+    <link rel="stylesheet" href="../../styles/chatbot.css?v=12">
+
+    <style>
+        /* =====================================================
+           EDUCATOR DASHBOARD
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .edu-page {
+            width: 100%;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .edu-section {
+            display: none;
+        }
+
+        .edu-section.active {
+            display: block;
+            animation: fadeUp .25s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =====================================================
+           SIDEBAR NAV
+        ===================================================== */
+
+        .edu-nav {
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+        }
+
+        .edu-nav.active {
+            background: rgba(110, 70, 255, 0.10);
+        }
+
+        /* =====================================================
+           DASHBOARD HERO
+        ===================================================== */
+
+        .edu-hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .hero-copy {
+            min-width: 0;
+        }
+
+        .hero-copy h1 {
+            margin: 6px 0 8px;
+            font-size: clamp(28px, 4vw, 42px);
+            line-height: 1.08;
+        }
+
+        .hero-copy .intro {
+            max-width: 650px;
+            margin: 0;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        /* =====================================================
+           QUICK ACTIONS
+        ===================================================== */
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .quick-action {
+            border: 1px solid #ececf2;
+            background: white;
+            border-radius: 17px;
+            padding: 17px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            cursor: pointer;
+            transition: .2s ease;
+            text-align: left;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(35, 25, 80, .08);
+            border-color: #ded7ff;
+        }
+
+        .quick-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            background: #f2efff;
+            color: #6f4cff;
+            font-size: 20px;
+        }
+
+        .quick-action strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .quick-action span {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* =====================================================
+           METRICS
+        ===================================================== */
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            position: relative;
+            padding: 22px;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: #f4f1ff;
+            right: -28px;
+            bottom: -32px;
+            z-index: 0;
+        }
+
+        .stat-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            display: grid;
+            place-items: center;
+            background: #f4f1ff;
+            color: #6f4cff;
+        }
+
+        .stat-card small {
+            display: block;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 30px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            color: #39844b;
+        }
+
+        /* =====================================================
+           PANELS
+        ===================================================== */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.35fr .85fr;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .panel {
+            min-width: 0;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+        }
+
+        .muted {
+            color: #777;
+        }
+
+        /* =====================================================
+           ANALYTICS
+        ===================================================== */
+
+        .analytics-item {
+            margin-bottom: 20px;
+        }
+
+        .analytics-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .analytics-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .progress-track {
+            height: 9px;
+            background: #ececf1;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-value {
+            height: 100%;
+            background: #6f4cff;
+            border-radius: 20px;
+        }
+
+        .progress-pink {
+            background: #ef73aa;
+        }
+
+        .progress-blue {
+            background: #5e9cff;
+        }
+
+        .progress-green {
+            background: #55a96d;
+        }
+
+        /* =====================================================
+           NEXT SESSION
+        ===================================================== */
+
+        .next-session {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f6f2ff, #fff);
+        }
+
+        .session-badge {
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #ebe5ff;
+            color: #6241e7;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            margin-bottom: 14px;
+        }
+
+        .session-info {
+            display: grid;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .session-info-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .session-info-row span:first-child {
+            width: 27px;
+            height: 27px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: white;
+        }
+
+        /* =====================================================
+           ACTIVITY
+        ===================================================== */
+
+        .activity-list {
+            display: grid;
+            gap: 0;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 14px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eeeeef;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: #f4f1ff;
+            color: #6f4cff;
+        }
+
+        .activity-item strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .activity-item p {
+            margin: 0;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .activity-time {
+            display: block;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        /* =====================================================
+           CLASSES
+        ===================================================== */
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .section-heading h1 {
+            margin-bottom: 6px;
+        }
+
+        .section-heading p {
+            margin: 0;
+        }
+
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .class-card {
+            overflow: hidden;
+            transition: .2s ease;
+        }
+
+        .class-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 35px rgba(35, 25, 80, .09);
+        }
+
+        .class-image-wrap {
+            position: relative;
+        }
+
+        .class-image {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .class-category {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,.93);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .class-body {
+            padding: 19px;
+        }
+
+        .class-body h3 {
+            margin: 8px 0 7px;
+        }
+
+        .class-body > p {
+            min-height: 42px;
+            color: #777;
+            line-height: 1.55;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .class-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .meta-box {
+            padding: 11px;
+            background: #f7f7f9;
+            border-radius: 12px;
+        }
+
+        .meta-box small {
+            display: block;
+            color: #777;
+            margin-bottom: 4px;
+            font-size: 10px;
+        }
+
+        .meta-box strong {
+            font-size: 13px;
+        }
+
+        .class-next {
+            padding: 11px 12px;
+            border-radius: 11px;
+            background: #faf9ff;
+            color: #62548e;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .class-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .class-actions .btn {
+            flex: 1;
+        }
+
+        /* =====================================================
+           LECTURES
+        ===================================================== */
+
+        .lecture-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .lecture-card {
+            overflow: hidden;
+        }
+
+        .lecture-thumbnail {
+            position: relative;
+            height: 180px;
+            background: #17151f;
+            overflow: hidden;
+        }
+
+        .lecture-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: .85;
+        }
+
+        .play-button {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 52px;
+            height: 52px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            color: #6f4cff;
+            font-size: 19px;
+            cursor: pointer;
+            box-shadow: 0 7px 25px rgba(0,0,0,.2);
+        }
+
+        .lecture-body {
+            padding: 18px;
+        }
+
+        .lecture-body h3 {
+            margin: 9px 0 7px;
+        }
+
+        .lecture-meta {
+            display: flex;
+            gap: 12px;
+            color: #777;
+            font-size: 12px;
+            margin: 10px 0 16px;
+        }
+
+        /* =====================================================
+           SESSIONS
+        ===================================================== */
+
+        .sessions-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .session-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .session-left {
+            display: flex;
+            gap: 17px;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .date-card {
+            width: 70px;
+            min-width: 70px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 14px;
+            background: #f5f2ff;
+        }
+
+        .date-card span {
+            display: block;
+            font-size: 10px;
+            color: #6f4cff;
+            font-weight: 700;
+        }
+
+        .date-card strong {
+            display: block;
+            font-size: 26px;
+            margin: 3px 0;
+        }
+
+        .session-details h3 {
+            margin: 0 0 6px;
+        }
+
+        .session-details p {
+            margin: 3px 0;
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           STUDENTS
+        ===================================================== */
+
+        .student-toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .student-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            border: 1px solid #e4e3eb;
+            background: white;
+            padding: 8px 13px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .filter-btn.active {
+            background: #6f4cff;
+            color: white;
+            border-color: #6f4cff;
+        }
+
+        .student-row {
+            display: grid;
+            grid-template-columns: 1.4fr 1.4fr .7fr .8fr auto;
+            gap: 15px;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #eeeeef;
+        }
+
+        .student-row:last-child {
+            border-bottom: none;
+        }
+
+        .student-avatar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 37px;
+            height: 37px;
+            min-width: 37px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #ece7ff;
+            color: #6241e7;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .student-avatar strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .student-avatar small {
+            display: block;
+            color: #999;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .status {
+            display: inline-flex;
+            width: max-content;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            background: #edf8ef;
+            color: #26733c;
+        }
+
+        .status.review {
+            background: #fff3df;
+            color: #a86200;
+        }
+
+        /* =====================================================
+           PROFILE
+        ===================================================== */
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 7px;
+            font-size: 13px;
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #dddde5;
+            border-radius: 11px;
+            font: inherit;
+            background: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            border-color: #8b70ff;
+            box-shadow: 0 0 0 3px rgba(111,76,255,.08);
+        }
+
+        .field textarea {
+            resize: vertical;
+        }
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .edu-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .btn {
+            cursor: pointer;
+        }
+
+        .btn.small {
+            padding: 9px 13px;
+            font-size: 12px;
+        }
+
+        .btn.ghost {
+            background: #f7f7f9;
+        }
+
+        /* =====================================================
+           EMPTY
+        ===================================================== */
+
+        .empty-state {
+            text-align: center;
+            padding: 45px 20px;
+            color: #777;
+        }
+
+        /* =====================================================
+           MODALS
+        ===================================================== */
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 12, 25, .55);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 9999;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            width: min(650px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 22px;
+            padding: 28px;
+            position: relative;
+        }
+
+        .modal-content-wide {
+            width: min(950px, 100%);
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 17px;
+            top: 14px;
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 50%;
+            background: #f3f3f6;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        /* =====================================================
+           MEETING
+        ===================================================== */
+
+        .meeting-screen {
+            background: #11151e;
+            color: white;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .meeting-header {
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meeting-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 15px;
+        }
+
+        .participant {
+            min-height: 190px;
+            border-radius: 14px;
+            background: #242b38;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .participant span {
+            font-size: 13px;
+            font-weight: 400;
+            margin-top: 7px;
+            opacity: .7;
+        }
+
+        .meeting-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 18px;
+            flex-wrap: wrap;
+        }
+
+        .meeting-control {
+            border: none;
+            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            cursor: pointer;
+            background: #2c3442;
+            color: white;
+            font-size: 17px;
+        }
+
+        .meeting-control.active {
+            background: #e5484d;
+        }
+
+        .meeting-control.leave {
+            width: auto;
+            border-radius: 24px;
+            padding: 0 22px;
+            background: #e5484d;
+        }
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #17151f;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: .25s ease;
+            z-index: 10000;
+            font-size: 13px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1150px) {
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .class-grid,
+            .lecture-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .class-grid,
+            .lecture-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .student-row {
+                grid-template-columns: 1.5fr 1.2fr .7fr auto;
+            }
+
+            .student-row > :nth-child(4) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .edu-hero {
+                flex-direction: column;
+            }
+
+            .hero-actions {
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                flex: 1;
+            }
+
+            .metric-grid,
+            .quick-actions,
+            .class-grid,
+            .lecture-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .class-meta {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .session-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .session-card .btn {
+                width: 100%;
+            }
+
+            .student-toolbar {
+                flex-direction: column;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .student-row {
+                grid-template-columns: 1fr auto;
+                gap: 10px;
+                padding: 15px 0;
+            }
+
+            .student-row > :nth-child(2),
+            .student-row > :nth-child(3),
+            .student-row > :nth-child(4) {
+                display: none;
+            }
+
+            .meeting-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .participant {
+                min-height: 140px;
+            }
+
+            .modal {
+                padding: 22px;
+                border-radius: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-copy h1 {
+                font-size: 28px;
+            }
+
+            .stat-card {
+                padding: 18px;
+            }
+
+            .class-image {
+                height: 175px;
+            }
+
+            .class-actions {
+                flex-direction: column;
+            }
+
+            .class-actions .btn {
+                width: 100%;
+            }
+
+            .session-left {
+                align-items: flex-start;
+            }
+
+            .date-card {
+                width: 60px;
+                min-width: 60px;
+            }
+
+            .date-card strong {
+                font-size: 22px;
+            }
+        }
+    
+        .community-map-panel { margin: 24px 0; }
+        .community-map { width: 100%; height: 320px; border: 1px solid #e1e5eb; background: #f7faff; z-index: 1; }
+        .map-status { margin-top: 10px; }
+        #educatorGreetingName { color: inherit; }
+        @media (max-width: 640px) { .community-map { height: 260px; } }
+
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+</head>
+
+<body data-role="educator">
+
+<!-- =========================================================
+     SIDEBAR
+========================================================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        Hobby<span>Nest</span>
+    </div>
+
+    <div class="nav-title">TEACH</div>
+
+    <button class="nav-item edu-nav active" data-section="dashboard">
+        <span class="nav-icon">⌂</span>
+        Dashboard
+    </button>
+
+    <button class="nav-item edu-nav" data-section="classes">
+        <span class="nav-icon">▣</span>
+        My Classes
+    </button>
+
+    <button class="nav-item edu-nav" data-section="lectures">
+        <span class="nav-icon">▶</span>
+        Recorded Lectures
+    </button>
+
+    <button class="nav-item edu-nav" data-section="sessions">
+        <span class="nav-icon">◷</span>
+        Upcoming Sessions
+    </button>
+
+    <button class="nav-item edu-nav" data-section="students">
+        <span class="nav-icon">◎</span>
+        Students
+    </button>
+
+    <button class="nav-item edu-nav" data-section="profile">
+        <span class="nav-icon">◉</span>
+        Profile
+    </button>
+
+    <div class="nav-title" style="margin-top:30px;">
+        CREATE
+    </div>
+
+    <button class="nav-item edu-nav" data-section="add">
+        <span class="nav-icon">＋</span>
+        Add New Class
+    </button>
+
+    <button class="nav-item edu-nav" data-section="settings">
+        <span class="nav-icon">⚙</span>
+        Settings
+    </button>
+
+    <div class="nav-title" style="margin-top:30px;">
+        COMMUNITY
+    </div>
+
+    <a class="nav-item" href="../user/nearby-meetups.html">
+        <span class="nav-icon">⌖</span>
+        Nearby Meetups
+    </a>
+
+    <a class="nav-item" href="../user/messages.html">
+        <span class="nav-icon">✉</span>
+        Messages
+    </a>
+
+    <div class="nav-title" style="margin-top:30px;">
+        ACCOUNT
+    </div>
+
+    <button
+        class="nav-item logout-nav"
+        type="button"
+        data-logout
+    >
+        <span class="nav-icon">↪</span>
+        Log out
+    </button>
+
+    <div class="sidebar-note">
+        <small>TEACH • CREATE • INSPIRE</small>
+        <strong>Build classes learners want to come back to.</strong>
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="main">
+
+    <header class="topbar">
+
+        <button class="mobile-menu" id="mobileMenu">
+            ☰
+        </button>
+
+        <div class="search">
+            <span>⌕</span>
+
+            <input
+                type="text"
+                id="educatorSearch"
+                placeholder="Search classes, students or lectures..."
+            >
+        </div>
+
+        <div class="profile">
+
+            <div class="profile-info">
+                <strong>My account</strong>
+                <span>Educator · HobbyNest</span>
+            </div>
+
+            <img
+                src="data:image/gif;base64,R0lGODlhAQABAAAAACw="
+                alt="Educator profile"
+            >
+
+        </div>
+
+    </header>
+
+
+    <div class="content edu-page">
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================= -->
+
+        <section
+            class="edu-section active"
+            id="dashboard"
+        >
+
+            <div class="edu-hero">
+
+                <div class="hero-copy">
+
+                    <div class="eyebrow">
+                        YOUR TEACHING SPACE
+                    </div>
+
+                    <h1>
+                        Good morning, <span id="educatorGreetingName">there</span>.
+                    </h1>
+
+                    <p class="intro">
+                        Manage your classes, learners and live sessions
+                        from one place.
+                    </p>
+
+                </div>
+
+                <div class="hero-actions">
+
+                    <button
+                        class="btn secondary"
+                        data-go-section="students"
+                    >
+                        View students
+                    </button>
+
+                    <button
+                        class="btn"
+                        data-go-section="add"
+                    >
+                        + Add class
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK ACTIONS -->
+
+            <div class="quick-actions">
+
+                <button
+                    class="quick-action"
+                    data-go-section="add"
+                >
+                    <div class="quick-icon">＋</div>
+
+                    <div>
+                        <strong>Add a class</strong>
+                        <span>Create a new course</span>
+                    </div>
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-go-section="lectures"
+                >
+                    <div class="quick-icon">▶</div>
+
+                    <div>
+                        <strong>Add lecture</strong>
+                        <span>Upload recorded content</span>
+                    </div>
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-go-section="students"
+                >
+                    <div class="quick-icon">◎</div>
+
+                    <div>
+                        <strong>View students</strong>
+                        <span>Track learner progress</span>
+                    </div>
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-go-section="sessions"
+                >
+                    <div class="quick-icon">◷</div>
+
+                    <div>
+                        <strong>Schedule session</strong>
+                        <span>Plan your next live class</span>
+                    </div>
+                </button>
+
+            </div>
+
+
+            <!-- METRICS -->
+
+            <div class="metric-grid">
+
+                <div class="card stat-card">
+
+                    <div class="stat-top">
+                        <small>Total Students</small>
+                        <div class="stat-icon">◎</div>
+                    </div>
+
+                    <strong id="statStudents">77</strong>
+
+                    <span class="stat-change" id="statStudentsNote">
+                        ↑ 12% this month
+                    </span>
+
+                </div>
+
+
+                <div class="card stat-card">
+
+                    <div class="stat-top">
+                        <small>Published Classes</small>
+                        <div class="stat-icon">▣</div>
+                    </div>
+
+                    <strong id="classCount">2</strong>
+
+                    <span class="stat-change" id="statClassesNote">
+                        2 published
+                    </span>
+
+                </div>
+
+
+                <div class="card stat-card">
+
+                    <div class="stat-top">
+                        <small>Recorded Lectures</small>
+                        <div class="stat-icon">▶</div>
+                    </div>
+
+                    <strong id="statLectures">12</strong>
+
+                    <span class="stat-change" id="statLecturesNote">
+                        ↑ 3 this month
+                    </span>
+
+                </div>
+
+
+                <div class="card stat-card">
+
+                    <div class="stat-top">
+                        <small>Avg. Completion</small>
+                        <div class="stat-icon">↗</div>
+                    </div>
+
+                    <strong id="statCompletion">68%</strong>
+
+                    <span class="stat-change" id="statCompletionNote">
+                        ↑ 7% this month
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ANALYTICS + NEXT SESSION -->
+
+            <div class="dashboard-grid">
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <div class="eyebrow">
+                                PERFORMANCE
+                            </div>
+
+                            <h2>
+                                Teaching Analytics
+                            </h2>
+                        </div>
+
+                        <span class="muted">
+                            Completion by class
+                        </span>
+
+                    </div>
+
+
+                    <div id="analyticsList">
+                        <p class="muted">Loading…</p>
+                    </div>
+                </div>
+
+
+                <div class="panel next-session">
+                    <div id="nextSessionPanel">
+                        <span class="session-badge">NEXT SESSION</span>
+                        <p class="muted">Loading…</p>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- COMMUNITY MAP -->
+            <section class="panel community-map-panel" aria-labelledby="educatorMapHeading">
+                <div class="panel-header">
+                    <div>
+                        <div class="eyebrow">EXPLORE NEARBY</div>
+                        <h2 id="educatorMapHeading">Community map</h2>
+                        <p class="muted">Upcoming HobbyNest meetups with a shared location.</p>
+                    </div>
+                    <a class="btn secondary" href="../user/nearby-meetups.html">View meetups →</a>
+                </div>
+                <div id="educatorCommunityMap" class="community-map" role="region" aria-label="Map of upcoming HobbyNest meetups"></div>
+                <p id="educatorCommunityMapStatus" class="muted map-status" aria-live="polite">Loading meetup locations…</p>
+            </section>
+
+            <!-- RECENT ACTIVITY -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <div class="eyebrow">
+                            RECENT ACTIVITY
+                        </div>
+
+                        <h2>
+                            What's happening
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div class="activity-list" id="activityList">
+                    <p class="muted">Loading…</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CLASSES
+        ================================================= -->
+
+        <section
+            class="edu-section"
+            id="classes"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        YOUR CATALOGUE
+                    </div>
+
+                    <h1>
+                        My Classes
+                    </h1>
+
+                    <p class="intro">
+                        Manage your courses, curriculum and learners.
+                    </p>
+
+                </div>
+
+                <button
+                    class="btn"
+                    data-go-section="add"
+                >
+                    + Add class
+                </button>
+
+            </div>
+
+
+            <div
+                class="class-grid"
+                id="classesGrid"
+            >
+                <p class="muted">Loading your classes…</p>
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LECTURES
+        ================================================= -->
+
+        <section
+            class="edu-section"
+            id="lectures"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        CONTENT LIBRARY
+                    </div>
+
+                    <h1>
+                        Recorded Lectures
+                    </h1>
+
+                    <p class="intro">
+                        Manage the recorded content available to learners.
+                    </p>
+
+                </div>
+
+                <button
+                    class="btn"
+                    id="addLectureButton"
+                >
+                    + Add lecture
+                </button>
+
+            </div>
+
+
+            <div class="lecture-grid">
+
+
+                <article
+                    class="card lecture-card searchable"
+                    data-search="web architecture fullstack javascript programming"
+                >
+
+                    <div class="lecture-thumbnail">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=85"
+                            alt="Web architecture"
+                        >
+
+                        <button
+                            class="play-button lecture-open"
+                            data-title="Introduction to Web Architecture"
+                            data-video="https://www.youtube.com/embed/ysz5S6PUM-U"
+                        >
+                            ▶
+                        </button>
+
+                    </div>
+
+
+                    <div class="lecture-body">
+
+                        <span class="tag">
+                            Programming
+                        </span>
+
+                        <h3>
+                            Introduction to Web Architecture
+                        </h3>
+
+                        <div class="lecture-meta">
+                            <span>45 min</span>
+                            <span>128 views</span>
+                        </div>
+
+                        <button
+                            class="btn small lecture-open"
+                            data-title="Introduction to Web Architecture"
+                            data-video="https://www.youtube.com/embed/ysz5S6PUM-U"
+                        >
+                            Watch lecture
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article
+                    class="card lecture-card searchable"
+                    data-search="figma design ui ux"
+                >
+
+                    <div class="lecture-thumbnail">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=900&q=85"
+                            alt="Figma design"
+                        >
+
+                        <button
+                            class="play-button lecture-open"
+                            data-title="Figma Design System Basics"
+                            data-video="https://www.youtube.com/embed/4Tr0otuiQuU"
+                        >
+                            ▶
+                        </button>
+
+                    </div>
+
+
+                    <div class="lecture-body">
+
+                        <span class="tag pink">
+                            Art & Design
+                        </span>
+
+                        <h3>
+                            Figma Design System Basics
+                        </h3>
+
+                        <div class="lecture-meta">
+                            <span>60 min</span>
+                            <span>96 views</span>
+                        </div>
+
+                        <button
+                            class="btn small lecture-open"
+                            data-title="Figma Design System Basics"
+                            data-video="https://www.youtube.com/embed/4Tr0otuiQuU"
+                        >
+                            Watch lecture
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article
+                    class="card lecture-card searchable"
+                    data-search="dance contemporary choreography movement"
+                >
+
+                    <div class="lecture-thumbnail">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=900&q=85"
+                            alt="Contemporary dance"
+                        >
+
+                        <button
+                            class="play-button lecture-open"
+                            data-title="Contemporary Dance Foundations"
+                            data-video="https://www.youtube.com/embed/ysz5S6PUM-U"
+                        >
+                            ▶
+                        </button>
+
+                    </div>
+
+
+                    <div class="lecture-body">
+
+                        <span class="tag">
+                            Dance
+                        </span>
+
+                        <h3>
+                            Contemporary Dance Foundations
+                        </h3>
+
+                        <div class="lecture-meta">
+                            <span>35 min</span>
+                            <span>74 views</span>
+                        </div>
+
+                        <button
+                            class="btn small lecture-open"
+                            data-title="Contemporary Dance Foundations"
+                            data-video="https://www.youtube.com/embed/ysz5S6PUM-U"
+                        >
+                            Watch lecture
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SESSIONS
+        ================================================= -->
+
+        <section
+            class="edu-section"
+            id="sessions"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        GO LIVE
+                    </div>
+
+                    <h1>
+                        Upcoming Sessions
+                    </h1>
+
+                    <p class="intro">
+                        Manage your upcoming live classes.
+                    </p>
+
+                </div>
+
+                <button
+                    class="btn"
+                    id="scheduleSessionBtn"
+                    type="button"
+                >
+                    + Schedule session
+                </button>
+
+            </div>
+
+
+            <div class="sessions-list" id="sessionsList">
+                <p class="muted">Loading your sessions…</p>
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             STUDENTS
+        ================================================= -->
+
+        <section
+            class="edu-section"
+            id="students"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        LEARNER OVERVIEW
+                    </div>
+
+                    <h1>
+                        Students
+                    </h1>
+
+                    <p class="intro">
+                        Track learner engagement and course progress.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="student-toolbar">
+
+                    <div class="student-filters">
+
+                        <button
+                            class="filter-btn active"
+                            data-filter="all"
+                        >
+                            All students
+                        </button>
+
+                        <button
+                            class="filter-btn"
+                            data-filter="active"
+                        >
+                            Active
+                        </button>
+
+                        <button
+                            class="filter-btn"
+                            data-filter="review"
+                        >
+                            Needs attention
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DESKTOP HEADER -->
+
+                <div
+                    class="student-row"
+                    style="font-weight:700;"
+                >
+                    <span>Student</span>
+                    <span>Class</span>
+                    <span>Progress</span>
+                    <span>Status</span>
+                    <span>Action</span>
+                </div>
+
+
+                <div id="studentRows">
+                    <p class="muted" style="padding:16px">Loading your students…</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ADD CLASS
+        ================================================= -->
+
+        <!-- (Add class lives on add-class.html) -->
+
+
+        <!-- =================================================
+             PROFILE
+        ================================================= -->
+
+        <section
+            class="edu-section"
+            id="profile"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        EDUCATOR IDENTITY
+                    </div>
+
+                    <h1>
+                        Profile
+                    </h1>
+
+                    <p class="intro">
+                        Tell learners who you are and what you teach.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+                <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px">
+                    <img id="eduAvatarPreview" alt="" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:1px solid #e1e5eb">
+                    <div>
+                        <label class="btn secondary" style="cursor:pointer">Change photo<input id="eduAvatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+                        <p class="muted" style="margin-top:6px">JPG, PNG or WebP · up to 2 MB</p>
+                    </div>
+                </div>
+                <div class="form-row">
+
+                    <div class="field">
+
+                        <label>
+                            Full name
+                        </label>
+
+                        <input
+                            id="profileName" maxlength="100"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Email
+                        </label>
+
+                        <input
+                            id="profileEmail"
+                            type="email" disabled title="Your login email can\'t be changed here"
+                        >
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label>
+                            Bio
+                        </label>
+
+                        <textarea
+                            id="profileBio"
+                            rows="4"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Specialisation
+                        </label>
+
+                        <input
+                            id="profileSpecialisation" maxlength="120" placeholder="e.g. Guitar &amp; music theory"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Teaching format
+                        </label>
+
+                        <select id="profileFormat">
+
+                            <option>
+                                Online + In-person
+                            </option>
+
+                            <option>
+                                Online
+                            </option>
+
+                            <option>
+                                In-person
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Experience
+                        </label>
+
+                        <input id="profileExperience" placeholder="e.g. 5 years">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Location
+                        </label>
+
+                        <input id="profileCity" placeholder="e.g. Mumbai">
+
+                    </div>
+
+                </div>
+
+
+                <p id="eduProfileStatus" class="muted" style="margin:10px 0;min-height:16px"></p>
+                <button
+                    class="btn"
+                    id="saveProfile"
+                    type="button"
+                >
+                    Update profile
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SETTINGS
+        ================================================= -->
+
+        <section
+            class="edu-section"
+            id="settings"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        ACCOUNT
+                    </div>
+
+                    <h1>
+                        Settings
+                    </h1>
+
+                    <p class="intro">
+                        Manage your educator preferences.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="field">
+
+                    <label>
+                        Email notifications
+                    </label>
+
+                    <select id="eduNotify">
+
+                        <option value="all">All important updates</option>
+                        <option value="sessions">Only session reminders</option>
+                        <option value="none">None</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Default teaching format
+                    </label>
+
+                    <select id="eduDefaultFormat">
+
+                        <option>Online + In-person</option>
+                        <option>Online</option>
+                        <option>In-person</option>
+
+                    </select>
+
+                </div>
+
+
+                <p class="muted" style="margin:6px 0 14px">Your default format is pre-filled when you add a new class. Email notifications: "All" emails you about new messages from learners; "Only session reminders" and "None" turn message emails off. New messages always show in Messages with an unread badge.</p>
+
+
+                <button
+                    class="btn"
+                    id="saveSettings"
+                    type="button"
+                >
+                    Save settings
+                </button>
+                <span id="eduSettingsStatus" class="muted" style="margin-left:10px"></span>
+            </div>
+
+            <div class="card" style="margin-top:20px">
+                <h2 style="margin-bottom:14px">Change password</h2>
+                <div class="form-row">
+                    <div class="field"><label>New password</label><input id="eduNewPw" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters"></div>
+                    <div class="field"><label>Confirm new password</label><input id="eduNewPw2" type="password" minlength="8" autocomplete="new-password"></div>
+                </div>
+                <button class="btn secondary" id="eduSavePassword" type="button">Update password</button>
+                <span id="eduPasswordStatus" class="muted" style="margin-left:10px"></span>
+
+            </div>
+
+            <div class="card" style="margin-top:20px" aria-labelledby="eduDeleteHeading">
+                <h2 id="eduDeleteHeading" style="margin-bottom:8px;color:#b4234d">Delete account</h2>
+                <p class="muted" style="margin-bottom:14px">Permanently delete your HobbyNest account. Your profile, classes, lessons, sessions,
+                    messages, posts, meetups and photos are removed and learners enrolled in your classes lose access
+                    (we email them to let them know). We'll email you a confirmation. This cannot be undone.</p>
+                <div class="field" style="max-width:280px">
+                    <label for="eduDeleteConfirm">Type DELETE to confirm</label>
+                    <input id="eduDeleteConfirm" autocomplete="off" placeholder="DELETE">
+                </div>
+                <button class="btn" id="eduDeleteButton" type="button" style="background:#b4234d;border-color:#b4234d">Permanently delete account</button>
+                <p id="eduDeleteStatus" class="muted" role="status" style="margin-top:10px"></p>
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     CLASS MODAL
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="classModal"
+>
+
+    <div class="modal">
+
+        <button
+            class="modal-close"
+            id="closeClassModal"
+        >
+            ×
+        </button>
+
+        <div id="classModalContent"></div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STUDENT MODAL
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="studentModal"
+>
+
+    <div class="modal">
+
+        <button
+            class="modal-close"
+            id="closeStudentModal"
+        >
+            ×
+        </button>
+
+        <div id="studentModalContent"></div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     LECTURE MODAL
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="lectureModal"
+>
+
+    <div class="modal modal-content-wide">
+
+        <button
+            class="modal-close"
+            id="closeLectureModal"
+        >
+            ×
+        </button>
+
+        <div class="eyebrow">
+            RECORDED LECTURE
+        </div>
+
+        <h2 id="lectureModalTitle">
+            Lecture
+        </h2>
+
+        <div
+            class="video-box"
+            style="
+                width:100%;
+                aspect-ratio:16/9;
+                background:#111;
+                border-radius:16px;
+                overflow:hidden;
+                margin-top:18px;
+            "
+        >
+
+            <iframe
+                id="lectureIframe"
+                src=""
+                title="Recorded lecture"
+                allowfullscreen
+                style="
+                    width:100%;
+                    height:100%;
+                    border:none;
+                "
+            ></iframe>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MEETING MODAL
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="meetingModal"
+>
+
+    <div class="modal modal-content-wide">
+
+        <button
+            class="modal-close"
+            id="closeMeetingModal"
+        >
+            ×
+        </button>
+
+
+        <div class="meeting-screen">
+
+            <div class="meeting-header">
+
+                <strong id="meetingTitle">
+                    Live Class
+                </strong>
+
+                <span>
+                    ● Educator mode
+                </span>
+
+            </div>
+
+
+            <div class="meeting-grid">
+
+                <div class="participant">
+                    JD
+                    <span>You · Host</span>
+                </div>
+
+                <div class="participant">
+                    AJ
+                    <span>Alex Johnson</span>
+                </div>
+
+                <div class="participant">
+                    SS
+                    <span>Sarah Smith</span>
+                </div>
+
+                <div class="participant">
+                    MP
+                    <span>Maya Patel</span>
+                </div>
+
+            </div>
+
+
+            <div class="meeting-controls">
+
+                <button
+                    class="meeting-control"
+                    id="micButton"
+                    title="Microphone"
+                >
+                    🎤
+                </button>
+
+                <button
+                    class="meeting-control"
+                    id="cameraButton"
+                    title="Camera"
+                >
+                    🎥
+                </button>
+
+                <button
+                    class="meeting-control"
+                    id="screenButton"
+                    title="Screen sharing"
+                >
+                    🖥
+                </button>
+
+                <button
+                    class="meeting-control"
+                    id="chatButton"
+                    title="Chat"
+                >
+                    💬
+                </button>
+
+                <button
+                    class="meeting-control leave"
+                    id="endMeeting"
+                >
+                    End class
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div
+    class="toast"
+    id="educatorToast"
+></div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    /* =====================================================
+       HELPERS
+    ===================================================== */
+
+    const $ = selector =>
+        document.querySelector(selector);
+
+    const $$ = selector =>
+        document.querySelectorAll(selector);
+
+
+    const toast = message => {
+
+        const element =
+            $("#educatorToast");
+
+        if (!element) return;
+
+        element.textContent =
+            message;
+
+        element.classList.add("show");
+
+        setTimeout(() => {
+
+            element.classList.remove("show");
+
+        }, 2200);
+
+    };
+
+
+    /* =====================================================
+       SECTION NAVIGATION
+    ===================================================== */
+
+    function openSection(sectionName) {
+
+        if (sectionName === "add") {
+            window.location.href = "add-class.html";
+            return;
+        }
+
+        if (sectionName === "lectures") {
+            window.location.href = "recorded-lectures.html";
+            return;
+        }
+
+        $$(".edu-section").forEach(section => {
+
+            section.classList.remove("active");
+
+        });
+
+
+        const target =
+            document.getElementById(sectionName);
+
+        if (target) {
+
+            target.classList.add("active");
+
+        }
+
+
+        $$(".edu-nav").forEach(nav => {
+
+            nav.classList.remove("active");
+
+        });
+
+
+        const activeNav =
+            document.querySelector(
+                `[data-section="${sectionName}"]`
+            );
+
+        if (activeNav) {
+
+            activeNav.classList.add("active");
+
+        }
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+
+        document
+            .querySelector(".sidebar")
+            ?.classList.remove("show");
+
+    }
+
+
+    $$(".edu-nav").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            openSection(
+                button.dataset.section
+            );
+
+        });
+
+    });
+
+
+    // Links like instructor-dashboard.html#students open that section.
+    const linkedSection = decodeURIComponent(location.hash.slice(1));
+    if (linkedSection && document.getElementById(linkedSection) &&
+        document.querySelector(`.edu-nav[data-section="${CSS.escape(linkedSection)}"]`)) {
+        openSection(linkedSection);
+    }
+
+    $$("[data-go-section]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            openSection(
+                button.dataset.goSection
+            );
+
+        });
+
+    });
+
+
+    /* =====================================================
+       MOBILE SIDEBAR
+    ===================================================== */
+
+    $("#mobileMenu")?.addEventListener(
+        "click",
+        () => {
+
+            document
+                .querySelector(".sidebar")
+                ?.classList.toggle("show");
+
+        }
+    );
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    $("#educatorSearch")?.addEventListener(
+        "input",
+        event => {
+
+            const query =
+                event.target.value
+                    .trim()
+                    .toLowerCase();
+
+
+            const visibleSection =
+                document.querySelector(
+                    ".edu-section.active"
+                );
+
+
+            if (!visibleSection) return;
+
+
+            const searchable =
+                visibleSection.querySelectorAll(
+                    ".searchable"
+                );
+
+
+            searchable.forEach(item => {
+
+                const text =
+                    (
+                        item.dataset.search ||
+                        item.textContent
+                    ).toLowerCase();
+
+
+                item.style.display =
+                    !query ||
+                    text.includes(query)
+                        ? ""
+                        : "none";
+
+            });
+
+        }
+    );
+
+
+    /* =====================================================
+       CLASS MODAL
+    ===================================================== */
+
+    const classModal =
+        $("#classModal");
+
+    const classContent =
+        $("#classModalContent");
+
+
+    /* (old demo handler removed) */
+
+
+    /* =====================================================
+       EDIT CLASS
+    ===================================================== */
+
+    /* (old demo handler removed) */
+
+
+    /* =====================================================
+       CLOSE MODALS
+    ===================================================== */
+
+    function closeModal(modal) {
+
+        if (modal) {
+
+            modal.classList.remove("show");
+
+        }
+
+    }
+
+
+    $("#closeClassModal")
+        ?.addEventListener(
+            "click",
+            () => closeModal(classModal)
+        );
+
+
+    /* =====================================================
+       STUDENT MODAL
+    ===================================================== */
+
+    const studentModal =
+        $("#studentModal");
+
+    const studentContent =
+        $("#studentModalContent");
+
+
+    /* (old demo handler removed) */
+
+
+    $("#closeStudentModal")
+        ?.addEventListener(
+            "click",
+            () => closeModal(studentModal)
+        );
+
+
+    /* =====================================================
+       STUDENT FILTERS
+    ===================================================== */
+
+    $$(".filter-btn").forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                $$(".filter-btn")
+                    .forEach(btn =>
+                        btn.classList.remove("active")
+                    );
+
+
+                button.classList.add("active");
+
+
+                const filter =
+                    button.dataset.filter;
+
+
+                $$(".student-entry")
+                    .forEach(student => {
+
+                        if (filter === "all") {
+
+                            student.style.display = "";
+
+                            return;
+
+                        }
+
+
+                        student.style.display =
+                            student.dataset.status === filter
+                                ? ""
+                                : "none";
+
+                    });
+
+            }
+        );
+
+    });
+
+
+    /* =====================================================
+       LECTURE MODAL
+    ===================================================== */
+
+    const lectureModal =
+        $("#lectureModal");
+
+    const lectureIframe =
+        $("#lectureIframe");
+
+    const lectureTitle =
+        $("#lectureModalTitle");
+
+
+    $$(".lecture-open").forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                lectureTitle.textContent =
+                    button.dataset.title ||
+                    "Recorded Lecture";
+
+
+                lectureIframe.src =
+                    button.dataset.video ||
+                    "";
+
+
+                lectureModal.classList.add("show");
+
+            }
+        );
+
+    });
+
+
+    $("#closeLectureModal")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                lectureIframe.src = "";
+
+                closeModal(lectureModal);
+
+            }
+        );
+
+
+    $("#addLectureButton")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                toast(
+                    "Lecture creation page will be connected next."
+                );
+
+            }
+        );
+
+
+    /* =====================================================
+       SESSIONS
+    ===================================================== */
+
+    const meetingModal =
+        $("#meetingModal");
+
+    const meetingTitle =
+        $("#meetingTitle");
+
+
+    function openMeeting(title) {
+
+        meetingTitle.textContent =
+            title || "Live Class";
+
+
+        meetingModal.classList.add("show");
+
+    }
+
+
+    $("#dashboardMeeting")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                openMeeting(
+                    "React State Management Live Q&A"
+                );
+
+            }
+        );
+
+
+    $$(".start-meeting")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    openMeeting(
+                        button.dataset.title
+                    );
+
+                }
+            );
+
+        });
+
+
+    $$(".schedule-details")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    toast(
+                        "Session details opened."
+                    );
+
+                }
+            );
+
+        });
+
+
+    $("#closeMeetingModal")
+        ?.addEventListener(
+            "click",
+            () => closeModal(meetingModal)
+        );
+
+
+    $("#endMeeting")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                closeModal(meetingModal);
+
+                toast(
+                    "Class ended."
+                );
+
+            }
+        );
+
+
+    $("#micButton")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                event.currentTarget
+                    .classList.toggle("active");
+
+
+                toast(
+                    event.currentTarget
+                        .classList.contains("active")
+                        ? "Microphone muted"
+                        : "Microphone unmuted"
+                );
+
+            }
+        );
+
+
+    $("#cameraButton")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                event.currentTarget
+                    .classList.toggle("active");
+
+
+                toast(
+                    event.currentTarget
+                        .classList.contains("active")
+                        ? "Camera turned off"
+                        : "Camera turned on"
+                );
+
+            }
+        );
+
+
+    $("#screenButton")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                toast(
+                    "Screen sharing will connect when the live-video backend is added."
+                );
+
+            }
+        );
+
+
+    $("#chatButton")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                toast(
+                    "Live chat interface opened."
+                );
+
+            }
+        );
+
+
+    /* =====================================================
+       PROFILE
+    ===================================================== */
+
+    $("#saveProfile")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                const name =
+                    $("#profileName")
+                        .value.trim();
+
+
+                if (!name) {
+
+                    toast(
+                        "Please enter your name."
+                    );
+
+                    return;
+
+                }
+
+
+                toast(
+                    "Educator profile updated ✓"
+                );
+
+            }
+        );
+
+
+    /* =====================================================
+       SETTINGS
+    ===================================================== */
+
+    $("#saveSettings")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                toast(
+                    "Settings saved ✓"
+                );
+
+            }
+        );
+
+
+    /* =====================================================
+       BACKDROP CLOSE
+    ===================================================== */
+
+    [
+        classModal,
+        studentModal,
+        lectureModal,
+        meetingModal
+    ].forEach(modal => {
+
+        modal?.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target === modal
+                ) {
+
+                    if (
+                        modal === lectureModal &&
+                        lectureIframe
+                    ) {
+                        lectureIframe.src = "";
+                    }
+
+                    closeModal(modal);
+
+                }
+
+            }
+        );
+
+    });
+
+
+})();
+
+</script>
+
+
+<!-- EXISTING PROJECT SCRIPTS -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+<script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/tutorial.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script src="../../js/educator-dashboard.js?v=13"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="../../js/dashboard-map.js?v=13"></script>
+<script src="../../js/account.js?v=12"></script>
+<script src="../../js/email-config.js?v=12"></script>
+<script src="../../js/notify.js?v=12"></script>
+<script src="../../js/educator-profile.js?v=13"></script>
+
+<script>
+    window.addEventListener("DOMContentLoaded", () => {
+
+        setTimeout(() => {
+
+            if (
+                typeof window.startHobbyNestTutorial ===
+                "function"
+            ) {
+                window.startHobbyNestTutorial();
+            }
+
+        }, 700);
+
+    });
+</script>
+
+</body>
+</html>

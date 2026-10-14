@@ -1,0 +1,184 @@
+HOBBYNEST: WHAT TO DO IN SUPABASE (do this once, about 10 minutes)
+=====================================================================
+Changing the website files is NOT enough. The three bugs are fixed in two
+places: the website files AND your Supabase project. If you skip the steps
+below, the bugs will look exactly the same as before.
+
+Which step fixes which bug:
+  Bug 1 - registration notice / verification link error  -> STEPS 2, 3 and 5
+  Bug 2 - deleting a user doesn't work / user isn't told  -> STEPS 1 and 5
+  Bug 3 - educator's messages / calls not seen by student -> STEPS 1 and 5
+  (Emails for welcome and deletion are optional        -> STEP 4)
+
+Open your project: https://supabase.com/dashboard -> your HobbyNest project
+(project id: jrxlhqxphtnhtugaetfw)
+
+
+---------------------------------------------------------------------
+STEP 1 - Run the new database.sql   (fixes deletion + messages)
+---------------------------------------------------------------------
+1. Left menu -> SQL Editor -> "+ New query".
+2. On your computer, open  hobbynest-main/database.sql  in VS Code or Notepad.
+   Press Ctrl+A (select ALL), Ctrl+C (copy).
+3. Paste into the SQL Editor (Ctrl+V). It must be the WHOLE file; the
+   important new parts are at the very end (sections 13, 14, 15).
+4. Click "Run" (bottom right), or press Ctrl+Enter.
+5. You should see:  "Success. No rows returned".
+   - Lines starting with NOTICE are fine (for example
+     "Making messages.messages_sender_id_fkey cascade on delete" means the
+     deletion bug was just repaired).
+   - If Supabase asks "run this query?" / warns about destructive
+     operations, click "Run this query". It only rebuilds rules; it
+     doesn't delete your users or classes.
+   - If you get a red ERROR, copy the error text and send it to me.
+6. Check it worked: new query, paste this, Run:
+       select public.hobbynest_setup_check();
+   You should see something like:
+       {"version": 8, "message_kind": true, "delete_function": true,
+        "session_notices": true, "blocking_foreign_keys": 0, ...}
+   "blocking_foreign_keys" MUST be 0 and the others true.
+
+It's safe to run database.sql again any time.
+
+
+---------------------------------------------------------------------
+STEP 2 - URL settings   (THE fix for "verification link doesn't open")
+---------------------------------------------------------------------
+Supabase puts this address inside every verification email. If it is
+wrong (the default is http://localhost:3000), the link opens a "site
+can't be reached" page, especially on a phone.
+
+1. Left menu -> Authentication -> URL Configuration.
+2. Site URL: your Netlify address, e.g.
+       https://hobbynest.netlify.app
+   (no slash at the end; use YOUR real address). Click Save.
+3. Redirect URLs -> "Add URL" -> add BOTH of these (with /** at the end):
+       https://YOUR-REAL-SITE-NAME.netlify.app/**   (replace with your actual Netlify URL)
+       http://127.0.0.1:5500/**                     (only if you also test with VS Code Live Server)
+   Save. Do NOT leave the example hostname in the settings.
+4. Emails sent BEFORE this change still contain the old wrong link.
+   Sign up again (or use "Send it again") to get a new email.
+
+
+---------------------------------------------------------------------
+STEP 3 - Verification email settings   (fixes "link expired" + missing emails)
+---------------------------------------------------------------------
+3a. Turn on email confirmation
+    Authentication -> Sign In / Providers -> Email:
+      - "Confirm email" = ON
+      - Minimum password length = 8
+    Save.
+
+3b. New "Confirm signup" email template  (recommended)
+    Gmail and Outlook "open" links automatically to scan them, which uses
+    up the one-time link, so the user then sees "Email link is invalid or
+    has expired". The new template only verifies when the person clicks.
+      Authentication -> Emails -> Templates -> "Confirm signup"
+      Subject:  Confirm your HobbyNest account
+      Body:     open hobbynest-main/email-templates/confirm-signup.html,
+                copy the WHOLE file and paste it in place of the old body
+                (in the "Source"/HTML view of the editor).
+                The button uses Supabase's {{ .RedirectTo }} value, so it
+                follows the redirect URL supplied by signup.js instead of
+                hard-coding the default Site URL.
+      Save.
+
+3c. If verification emails don't arrive at all
+    Supabase's built-in sender only allows a few emails per hour. Use
+    your own Gmail instead (free):
+      1. Google account -> Security -> turn on 2-Step Verification ->
+         search "App passwords" -> create one called "Supabase" -> copy
+         the 16-letter password.
+      2. Supabase -> Authentication -> Emails -> SMTP Settings ->
+         Enable custom SMTP:
+             Sender email:  your Gmail address
+             Sender name:   HobbyNest
+             Host:          smtp.gmail.com
+             Port:          465
+             Username:      your Gmail address
+             Password:      the 16-letter app password
+         Save.
+
+
+---------------------------------------------------------------------
+STEP 4 (optional) - Welcome + "account deleted" emails, no coding
+---------------------------------------------------------------------
+Without this step the app still shows every notice ON SCREEN:
+"Check your inbox", "Registration complete", "Your account has been
+deleted", unread badges, pop-ups. This step ADDS the emails.
+
+1. Go to https://www.emailjs.com -> Sign up (free).
+2. Email Services -> Add New Service -> Gmail -> Connect account ->
+   Create Service. Copy the Service ID (looks like service_ab12cd3).
+3. Email Templates -> Create New Template:
+     - Subject:   {{subject}}
+     - Content:   click "Edit Content" -> "Code editor", delete what is
+                  there and type exactly:   {{{message_html}}}
+                  (THREE curly brackets on each side)
+     - On the right:  To Email = {{to_email}}    From Name = HobbyNest
+     - Save. Copy the Template ID (looks like template_xy98zt7).
+4. Account -> General -> copy the Public Key.
+5. Open  hobbynest-main/src/js/email-config.js  and paste the three values:
+       publicKey:  "your public key",
+       serviceId:  "service_ab12cd3",
+       templateId: "template_xy98zt7"
+   Save the file. (Then do STEP 5 so the site has it.)
+6. (Recommended) EmailJS -> Account -> Security -> allow only your
+   Netlify domain, so nobody else can use your keys.
+
+
+---------------------------------------------------------------------
+STEP 5 - Upload the new website files
+---------------------------------------------------------------------
+1. Netlify -> your site -> Deploys -> drag the WHOLE hobbynest-main
+   folder from the new zip onto the page.
+2. Wait for "Published".
+3. Open the site and press Ctrl+Shift+R (Cmd+Shift+R on Mac) to skip the
+   old cached files. On phones, close the tab and open it again.
+(If you use VS Code Live Server, open the NEW hobbynest-main folder.)
+
+
+---------------------------------------------------------------------
+STEP 6 - Check everything in one click
+---------------------------------------------------------------------
+1. Log in on the site.
+2. Change the address to   <your site>/src/screens/selftest.html
+   and click "Run".
+3. Look at the section "Batch 8: database update, deletion & emails":
+     Latest database.sql ............. green   (else redo STEP 1)
+     Delete account .................. green
+     Nothing blocks account deletion . green
+     Session notices in Messages ..... green
+     Emails .......................... green if you did STEP 4 (else grey = fine)
+   The first row "App files are the latest version" must also be green
+   (else redo STEP 5 and press Ctrl+Shift+R).
+4. Then follow TESTING.txt.
+
+
+---------------------------------------------------------------------
+IMPORTANT WHEN TESTING
+---------------------------------------------------------------------
+- Use TWO DIFFERENT BROWSERS for educator and learner (e.g. Chrome +
+  Firefox, or Chrome + an Incognito window). Two tabs of the same
+  browser share ONE login, so the second login replaces the first.
+  That is a very common reason messages "don't arrive".
+- An educator can only message learners who are ENROLLED in one of
+  their classes. The learner must open the class and click Enroll first.
+- Old verification emails (sent before STEP 2/3) still have the old
+  broken link. Always test with a fresh signup.
+
+
+---------------------------------------------------------------------
+ADVANCED (not needed for the project demo)
+---------------------------------------------------------------------
+supabase/functions/ has two optional Supabase Edge Functions (deployed
+with the Supabase CLI) that also email users about new messages and
+live sessions. See README.md -> "Advanced: Edge Functions".
+
+
+## Course session notifications (v13)
+The instructor dashboard now requires a class when scheduling a live session. If the educator leaves the meeting-link field blank, HobbyNest creates a unique Jitsi room link. The `notify_session_learners` database trigger inserts an inbox message for each learner enrolled in that exact class; unrelated learners do not receive that message.
+
+If your Supabase database already has the latest `database.sql` trigger, no extra SQL is needed. Otherwise, open Supabase → SQL Editor and run the included `session-notifications.sql` file. Inbox notices require the database trigger. Email reminders are optional and require deploying `supabase/functions/notify` with the required Supabase secrets, then setting `edgeFunctions: true` in `src/js/email-config.js`. Never put a service-role key in browser code.
+
+The student and instructor dashboard maps show upcoming meetups that have latitude/longitude pins saved. A meetup without a map pin will not appear on the dashboard map.

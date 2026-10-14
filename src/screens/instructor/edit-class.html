@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Class | HobbyNest</title>
+
+    <link rel="stylesheet" href="../../styles/global.css?v=12">
+    <link rel="stylesheet" href="../../styles/chatbot.css?v=12">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f7f8fc;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: #ffffff;
+            border-right: 1px solid #e8e8ef;
+            padding: 24px 16px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            padding: 0 14px 28px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #17172b;
+        }
+
+        .brand span {
+            color: #7c5cff;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9999a8;
+            padding: 0 14px;
+            margin: 20px 0 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            margin: 4px 0;
+            border-radius: 12px;
+            color: #5e5e70;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #f5f3ff;
+            color: #6e52e8;
+        }
+
+        .nav-item.active {
+            background: #eeeaff;
+            color: #6849e8;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 72px;
+            background: #ffffff;
+            border-bottom: 1px solid #e8e8ef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #666679;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: #6849e8;
+        }
+
+        .page-content {
+            padding: 32px;
+            max-width: 1450px;
+            margin: auto;
+        }
+
+        /* ================= HEADER ================= */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+            color: #19192b;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #77778a;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 11px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            border: 1px solid #dedee8;
+            color: #555568;
+        }
+
+        .btn-secondary:hover {
+            background: #f7f7fb;
+        }
+
+        .btn-primary {
+            background: #7256e8;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6245d6;
+        }
+
+        .btn-success {
+            background: #24a878;
+            color: white;
+        }
+
+        /* ================= LAYOUT ================= */
+
+        .builder-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 290px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .builder-main {
+            min-width: 0;
+        }
+
+        .builder-card {
+            background: white;
+            border: 1px solid #e8e8ef;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(30, 30, 60, 0.03);
+        }
+
+        /* ================= STEPS ================= */
+
+        .steps {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 130px;
+            padding: 12px 14px;
+            border-radius: 11px;
+            background: #f5f5f9;
+            color: #77778a;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .step.active {
+            background: #eeeaff;
+            color: #694be6;
+        }
+
+        .step.completed {
+            background: #eaf8f3;
+            color: #24966d;
+        }
+
+        /* ================= FORM ================= */
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .section-heading {
+            margin-bottom: 24px;
+        }
+
+        .section-heading h2 {
+            margin: 0 0 6px;
+            color: #1b1b2d;
+            font-size: 21px;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: #858596;
+            font-size: 13px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #454557;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            border: 1px solid #dedee8;
+            border-radius: 10px;
+            padding: 12px 13px;
+            background: #fff;
+            color: #252537;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #8064ec;
+            box-shadow: 0 0 0 3px rgba(128, 100, 236, 0.1);
+        }
+
+        .help-text {
+            color: #9696a6;
+            font-size: 11px;
+        }
+
+        /* ================= IMAGE ================= */
+
+        .image-upload {
+            border: 2px dashed #dcd9ed;
+            border-radius: 15px;
+            padding: 24px;
+            text-align: center;
+            background: #faf9ff;
+        }
+
+        .image-upload input {
+            margin-top: 12px;
+            border: none;
+            padding: 0;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .image-preview img {
+            width: 100%;
+            max-height: 240px;
+            object-fit: cover;
+            border-radius: 13px;
+        }
+
+        /* ================= LESSONS ================= */
+
+        .lesson-list,
+        .lecture-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .lesson-card,
+        .lecture-card {
+            border: 1px solid #e3e3eb;
+            border-radius: 14px;
+            padding: 18px;
+            background: #fcfcfe;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .item-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: #6849e8;
+        }
+
+        .remove-btn {
+            border: none;
+            background: #fff0f0;
+            color: #d75b5b;
+            padding: 7px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .add-item-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 13px;
+            border: 1px dashed #bdb5e9;
+            background: #faf9ff;
+            color: #6849e8;
+            border-radius: 11px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .add-item-btn:hover {
+            background: #f2efff;
+        }
+
+        /* ================= PREVIEW ================= */
+
+        .preview-card {
+            border: 1px solid #e4e4ec;
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .preview-image {
+            height: 230px;
+            background: linear-gradient(135deg, #e9e2ff, #f8e7f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #756d91;
+            font-size: 15px;
+            overflow: hidden;
+        }
+
+        .preview-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-body {
+            padding: 22px;
+        }
+
+        .preview-category {
+            color: #7456df;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .preview-body h3 {
+            margin: 8px 0;
+            font-size: 23px;
+            color: #1d1d2e;
+        }
+
+        .preview-body p {
+            color: #747487;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .preview-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .meta-pill {
+            background: #f4f3f9;
+            padding: 8px 11px;
+            border-radius: 9px;
+            color: #5f5f70;
+            font-size: 12px;
+        }
+
+        /* ================= RIGHT PANEL ================= */
+
+        .side-panel {
+            position: sticky;
+            top: 96px;
+        }
+
+        .side-card {
+            background: white;
+            border: 1px solid #e8e8ef;
+            border-radius: 17px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .side-card h3 {
+            margin: 0 0 15px;
+            color: #242438;
+            font-size: 16px;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #eeeef4;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 20%;
+            height: 100%;
+            background: #7355e7;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #888899;
+        }
+
+        .check-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            gap: 9px;
+            font-size: 12px;
+            color: #77778a;
+        }
+
+        .check-item.done {
+            color: #23976e;
+        }
+
+        .tip {
+            background: #faf8ff;
+            border-radius: 12px;
+            padding: 13px;
+            color: #77718b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* ================= FOOTER NAV ================= */
+
+        .builder-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid #ededf2;
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status-box {
+            display: none;
+            padding: 13px 15px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 13px;
+        }
+
+        .status-box.error {
+            display: block;
+            background: #fff0f3;
+            color: #b43d60;
+        }
+
+        .status-box.success {
+            display: block;
+            background: #eaf8f3;
+            color: #21805e;
+        }
+
+        /* ================= MOBILE ================= */
+
+        .mobile-menu {
+            display: none;
+        }
+
+        @media (max-width: 1100px) {
+            .builder-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: static;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+
+            .side-card {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 950px) {
+            .sidebar {
+                width: 215px;
+            }
+
+            .main-content {
+                margin-left: 215px;
+                width: calc(100% - 215px);
+            }
+
+            .page-content {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-menu {
+                display: block;
+                border: none;
+                background: transparent;
+                font-size: 22px;
+                cursor: pointer;
+            }
+
+            .topbar {
+                padding: 0 18px;
+            }
+
+            .page-content {
+                padding: 18px;
+            }
+
+            .page-header {
+                flex-direction: column;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .side-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .builder-card {
+                padding: 20px;
+            }
+
+            .builder-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .footer-right {
+                width: 100%;
+            }
+
+            .footer-right .btn {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .builder-card {
+                padding: 16px;
+                border-radius: 14px;
+            }
+
+            .step {
+                min-width: 110px;
+            }
+
+            .header-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body data-role="educator">
+
+<div class="page-wrapper">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            Hobby<span>Nest</span>
+        </div>
+
+        <div class="nav-title">Teaching</div>
+
+        <a href="instructor-dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            Dashboard
+        </a>
+
+        <a href="instructor-dashboard.html" class="nav-item active">
+            <span class="nav-icon">📚</span>
+            My Classes
+        </a>
+
+        <a href="add-class.html" class="nav-item">
+            <span class="nav-icon">➕</span>
+            Add Class
+        </a>
+
+        <a href="recorded-lectures.html" class="nav-item">
+            <span class="nav-icon">▶️</span>
+            Recorded Lectures
+        </a>
+
+        <a href="instructor-dashboard.html" class="nav-item">
+            <span class="nav-icon">📅</span>
+            Sessions
+        </a>
+
+        <div class="nav-title">Manage</div>
+
+        <a href="instructor-dashboard.html" class="nav-item">
+            <span class="nav-icon">👥</span>
+            Students
+        </a>
+
+        <a href="instructor-dashboard.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            Profile
+        </a>
+
+        <a href="instructor-dashboard.html" class="nav-item">
+            <span class="nav-icon">⚙️</span>
+            Settings
+        </a>
+
+        <a href="#" class="nav-item" id="logoutBtn" data-logout>
+            <span class="nav-icon">↪️</span>
+            Logout
+        </a>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button class="mobile-menu" onclick="toggleMobileMenu()">
+                    ☰
+                </button>
+
+                <a href="instructor-dashboard.html" class="back-link">
+                    ← Back to dashboard
+                </a>
+
+            </div>
+
+            <div>
+                <span style="font-size:13px;color:#77778a;">
+                    Educator
+                </span>
+            </div>
+
+        </header>
+
+
+        <div class="page-content">
+
+            <!-- HEADER -->
+
+            <div class="page-header">
+
+                <div>
+                    <h1>Edit Class</h1>
+                    <p>
+                        Update your class information, curriculum and recorded lectures.
+                    </p>
+                </div>
+
+                <div class="header-actions">
+
+                    <button
+                        class="btn btn-secondary"
+                        onclick="saveDraft()">
+                        Save Changes
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="saveAndPublish()">
+                        Save & Publish
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="statusBox" class="status-box"></div>
+
+
+            <!-- BUILDER -->
+
+            <div class="builder-layout">
+
+                <div class="builder-main">
+
+                    <div class="builder-card">
+
+                        <!-- STEPS -->
+
+                        <div class="steps">
+
+                            <div
+                                class="step active"
+                                data-step="1"
+                                onclick="goToStep(1)">
+                                1. Basic Info
+                            </div>
+
+                            <div
+                                class="step"
+                                data-step="2"
+                                onclick="goToStep(2)">
+                                2. Details
+                            </div>
+
+                            <div
+                                class="step"
+                                data-step="3"
+                                onclick="goToStep(3)">
+                                3. Curriculum
+                            </div>
+
+                            <div
+                                class="step"
+                                data-step="4"
+                                onclick="goToStep(4)">
+                                4. Lectures
+                            </div>
+
+                            <div
+                                class="step"
+                                data-step="5"
+                                onclick="goToStep(5)">
+                                5. Preview
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================= STEP 1 ================= -->
+
+                        <section
+                            class="form-section active"
+                            data-section="1">
+
+                            <div class="section-heading">
+
+                                <h2>Basic Information</h2>
+
+                                <p>
+                                    Update the main information learners will see about your class.
+                                </p>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+                                <div class="form-group full">
+
+                                    <label>
+                                        Class Name
+                                    </label>
+
+                                    <input
+                                        id="className"
+                                        type="text"
+                                        value="Contemporary Dance Fundamentals"
+                                        placeholder="Enter class name">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Category
+                                    </label>
+
+                                    <select id="category">
+
+                                        <option>Dance</option>
+                                        <option>Music</option>
+                                        <option>Art</option>
+                                        <option>Photography</option>
+                                        <option>Craft & DIY</option>
+                                        <option>Community</option>
+                                        <option>Programming</option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Difficulty
+                                    </label>
+
+                                    <select id="difficulty">
+
+                                        <option>Beginner</option>
+                                        <option selected>Intermediate</option>
+                                        <option>Advanced</option>
+                                        <option>All Levels</option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group full">
+
+                                    <label>
+                                        Description
+                                    </label>
+
+                                    <textarea
+                                        id="description"
+                                        placeholder="Describe what learners will learn...">Learn contemporary dance fundamentals, body movement, musicality, floor work and choreography through practical sessions.</textarea>
+
+                                </div>
+
+
+                                <div class="form-group full">
+
+                                    <label>
+                                        Class Image
+                                    </label>
+
+                                    <div class="image-upload">
+
+                                        <div>
+                                            🖼️
+                                            <br>
+                                            <strong>Replace class image</strong>
+                                            <br>
+                                            <span class="help-text">
+                                                Upload a JPG, PNG or WEBP image
+                                            </span>
+                                        </div>
+
+                                        <input
+                                            type="file"
+                                            id="classImage"
+                                            accept="image/*">
+
+                                        <div
+                                            class="image-preview"
+                                            id="imagePreview">
+
+                                            <img
+                                                id="previewImg"
+                                                src=""
+                                                alt="Class preview">
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+
+                        <!-- ================= STEP 2 ================= -->
+
+                        <section
+                            class="form-section"
+                            data-section="2">
+
+                            <div class="section-heading">
+
+                                <h2>Class Details</h2>
+
+                                <p>
+                                    Update pricing, capacity, schedule and teaching format.
+                                </p>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Duration
+                                    </label>
+
+                                    <input
+                                        id="duration"
+                                        type="text"
+                                        value="8 weeks"
+                                        placeholder="e.g. 8 weeks">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Fee
+                                    </label>
+
+                                    <input
+                                        id="fee"
+                                        type="number"
+                                        value="3500"
+                                        placeholder="Enter fee">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Maximum Students
+                                    </label>
+
+                                    <input
+                                        id="capacity"
+                                        type="number"
+                                        value="20"
+                                        placeholder="Maximum learners">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Location
+                                    </label>
+
+                                    <input
+                                        id="location"
+                                        type="text"
+                                        value="Pune Dance Studio"
+                                        placeholder="Studio / online">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Schedule
+                                    </label>
+
+                                    <input
+                                        id="schedule"
+                                        type="text"
+                                        value="Saturday & Sunday · 5:00 PM"
+                                        placeholder="e.g. Saturday · 5 PM">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Teaching Format
+                                    </label>
+
+                                    <select id="format">
+
+                                        <option selected>In-person</option>
+                                        <option>Online</option>
+                                        <option>Hybrid</option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Certificate
+                                    </label>
+
+                                    <select id="certificate">
+
+                                        <option selected>Certificate included</option>
+                                        <option>No certificate</option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+
+                        <!-- ================= STEP 3 ================= -->
+
+                        <section
+                            class="form-section"
+                            data-section="3">
+
+                            <div class="section-heading">
+
+                                <h2>Curriculum</h2>
+
+                                <p>
+                                    Edit, remove or add lessons to your class.
+                                </p>
+
+                            </div>
+
+
+                            <div
+                                class="lesson-list"
+                                id="lessonList">
+
+                                <!-- Lesson 1 -->
+
+                                <div class="lesson-card">
+
+                                    <div class="item-header">
+
+                                        <span class="item-number">
+                                            Lesson 1
+                                        </span>
+
+                                        <button
+                                            class="remove-btn"
+                                            onclick="removeItem(this)">
+                                            Remove
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="form-grid">
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Lesson Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="Introduction to Contemporary Dance">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Duration
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="45 min">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Lesson Type
+                                            </label>
+
+                                            <select>
+
+                                                <option selected>Live Session</option>
+                                                <option>Recorded</option>
+                                                <option>Assignment</option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Description
+                                            </label>
+
+                                            <textarea>Introduction to body movement, posture, rhythm and contemporary dance basics.</textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Lesson 2 -->
+
+                                <div class="lesson-card">
+
+                                    <div class="item-header">
+
+                                        <span class="item-number">
+                                            Lesson 2
+                                        </span>
+
+                                        <button
+                                            class="remove-btn"
+                                            onclick="removeItem(this)">
+                                            Remove
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="form-grid">
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Lesson Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="Floor Work & Movement">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Duration
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="60 min">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Lesson Type
+                                            </label>
+
+                                            <select>
+
+                                                <option selected>Live Session</option>
+                                                <option>Recorded</option>
+                                                <option>Assignment</option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Description
+                                            </label>
+
+                                            <textarea>Learn floor transitions, controlled movement and contemporary dance combinations.</textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Lesson 3 -->
+
+                                <div class="lesson-card">
+
+                                    <div class="item-header">
+
+                                        <span class="item-number">
+                                            Lesson 3
+                                        </span>
+
+                                        <button
+                                            class="remove-btn"
+                                            onclick="removeItem(this)">
+                                            Remove
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="form-grid">
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Lesson Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="Choreography & Musicality">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Duration
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="75 min">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Lesson Type
+                                            </label>
+
+                                            <select>
+
+                                                <option selected>Live Session</option>
+                                                <option>Recorded</option>
+                                                <option>Assignment</option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Description
+                                            </label>
+
+                                            <textarea>Combine movement, rhythm and musicality into a complete choreography.</textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <button
+                                class="add-item-btn"
+                                onclick="addLesson()">
+
+                                + Add Lesson
+
+                            </button>
+
+                        </section>
+
+
+                        <!-- ================= STEP 4 ================= -->
+
+                        <section
+                            class="form-section"
+                            data-section="4">
+
+                            <div class="section-heading">
+
+                                <h2>Recorded Lectures</h2>
+
+                                <p>
+                                    Add YouTube lectures learners can watch alongside your live classes.
+                                </p>
+
+                            </div>
+
+
+                            <div
+                                class="lecture-list"
+                                id="lectureList">
+
+                                <div class="lecture-card">
+
+                                    <div class="item-header">
+
+                                        <span class="item-number">
+                                            Lecture 1
+                                        </span>
+
+                                        <button
+                                            class="remove-btn"
+                                            onclick="removeItem(this)">
+                                            Remove
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="form-grid">
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Lecture Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="Contemporary Dance Warm-Up">
+
+                                        </div>
+
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                YouTube URL
+                                            </label>
+
+                                            <input
+                                                type="url"
+                                                value="https://www.youtube.com/watch?v=example">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Duration
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="12 min">
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="lecture-card">
+
+                                    <div class="item-header">
+
+                                        <span class="item-number">
+                                            Lecture 2
+                                        </span>
+
+                                        <button
+                                            class="remove-btn"
+                                            onclick="removeItem(this)">
+                                            Remove
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="form-grid">
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                Lecture Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="Floor Movement Practice">
+
+                                        </div>
+
+
+                                        <div class="form-group full">
+
+                                            <label>
+                                                YouTube URL
+                                            </label>
+
+                                            <input
+                                                type="url"
+                                                value="https://www.youtube.com/watch?v=example2">
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Duration
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value="18 min">
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <button
+                                class="add-item-btn"
+                                onclick="addLecture()">
+
+                                + Add Recorded Lecture
+
+                            </button>
+
+                        </section>
+
+
+                        <!-- ================= STEP 5 ================= -->
+
+                        <section
+                            class="form-section"
+                            data-section="5">
+
+                            <div class="section-heading">
+
+                                <h2>Preview Your Class</h2>
+
+                                <p>
+                                    Review how your updated class will appear to learners.
+                                </p>
+
+                            </div>
+
+
+                            <div class="preview-card">
+
+                                <div
+                                    class="preview-image"
+                                    id="previewContainer">
+
+                                    No image selected
+
+                                </div>
+
+
+                                <div class="preview-body">
+
+                                    <div
+                                        class="preview-category"
+                                        id="previewCategory">
+                                        Dance
+                                    </div>
+
+
+                                    <h3 id="previewName">
+                                        Contemporary Dance Fundamentals
+                                    </h3>
+
+
+                                    <p id="previewDescription">
+                                        Learn contemporary dance fundamentals, body movement,
+                                        musicality, floor work and choreography through practical sessions.
+                                    </p>
+
+
+                                    <div class="preview-meta">
+
+                                        <span
+                                            class="meta-pill"
+                                            id="previewDuration">
+                                            ⏱ 8 weeks
+                                        </span>
+
+                                        <span
+                                            class="meta-pill"
+                                            id="previewFee">
+                                            ₹3500
+                                        </span>
+
+                                        <span
+                                            class="meta-pill"
+                                            id="previewLocation">
+                                            📍 Pune Dance Studio
+                                        </span>
+
+                                        <span
+                                            class="meta-pill"
+                                            id="previewFormat">
+                                            🎓 In-person
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+
+                        <!-- ================= FOOTER ================= -->
+
+                        <div class="builder-footer">
+
+                            <button
+                                class="btn btn-secondary"
+                                id="previousBtn"
+                                onclick="previousStep()">
+
+                                ← Previous
+
+                            </button>
+
+
+                            <div class="footer-right">
+
+                                <button
+                                    class="btn btn-secondary"
+                                    onclick="saveDraft()">
+
+                                    Save Changes
+
+                                </button>
+
+                                <button
+                                    class="btn btn-primary"
+                                    id="nextBtn"
+                                    onclick="nextStep()">
+
+                                    Next →
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= SIDE PANEL ================= -->
+
+                <aside class="side-panel">
+
+                    <div class="side-card">
+
+                        <h3>Editing Progress</h3>
+
+                        <div class="progress-track">
+
+                            <div
+                                class="progress-bar"
+                                id="progressBar">
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="progress-text"
+                            id="progressText">
+
+                            Step 1 of 5
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="side-card">
+
+                        <h3>Class Checklist</h3>
+
+                        <div class="check-list">
+
+                            <div class="check-item done">
+                                ✓ Basic information
+                            </div>
+
+                            <div class="check-item done">
+                                ✓ Class details
+                            </div>
+
+                            <div class="check-item done">
+                                ✓ Curriculum
+                            </div>
+
+                            <div class="check-item done">
+                                ✓ Recorded lectures
+                            </div>
+
+                            <div class="check-item">
+                                ○ Final preview
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="side-card">
+
+                        <h3>💡 Editing Tip</h3>
+
+                        <div class="tip">
+
+                            Keep your class description clear and learner-focused.
+                            Mention what students will learn and what they can expect
+                            after completing the class.
+
+                        </div>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- ================= SCRIPTS ================= -->
+
+<script>
+
+    let currentStep = 1;
+
+    const totalSteps = 5;
+
+
+    /* ================= STEP NAVIGATION ================= */
+
+    function goToStep(step) {
+
+        if (step < 1 || step > totalSteps) {
+            return;
+        }
+
+        currentStep = step;
+
+        document
+            .querySelectorAll(".form-section")
+            .forEach(section => {
+
+                section.classList.toggle(
+                    "active",
+                    Number(section.dataset.section) === step
+                );
+
+            });
+
+
+        document
+            .querySelectorAll(".step")
+            .forEach(stepElement => {
+
+                const number =
+                    Number(stepElement.dataset.step);
+
+                stepElement.classList.toggle(
+                    "active",
+                    number === step
+                );
+
+                stepElement.classList.toggle(
+                    "completed",
+                    number < step
+                );
+
+            });
+
+
+        updateProgress();
+
+        updateButtons();
+
+
+        if (step === 5) {
+            updatePreview();
+        }
+
+    }
+
+
+    function nextStep() {
+
+        if (currentStep < totalSteps) {
+            goToStep(currentStep + 1);
+        }
+
+    }
+
+
+    function previousStep() {
+
+        if (currentStep > 1) {
+            goToStep(currentStep - 1);
+        }
+
+    }
+
+
+    function updateProgress() {
+
+        const percentage =
+            (currentStep / totalSteps) * 100;
+
+        document.getElementById("progressBar").style.width =
+            percentage + "%";
+
+        document.getElementById("progressText").textContent =
+            `Step ${currentStep} of ${totalSteps}`;
+
+    }
+
+
+    function updateButtons() {
+
+        const previousBtn =
+            document.getElementById("previousBtn");
+
+        const nextBtn =
+            document.getElementById("nextBtn");
+
+
+        previousBtn.style.visibility =
+            currentStep === 1
+                ? "hidden"
+                : "visible";
+
+
+        if (currentStep === totalSteps) {
+
+            nextBtn.textContent =
+                "Save Changes ✓";
+
+            nextBtn.onclick =
+                saveDraft;
+
+        } else {
+
+            nextBtn.textContent =
+                "Next →";
+
+            nextBtn.onclick =
+                nextStep;
+
+        }
+
+    }
+
+
+    /* ================= IMAGE PREVIEW ================= */
+
+    document
+        .getElementById("classImage")
+        .addEventListener("change", function () {
+
+            const file = this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader =
+                new FileReader();
+
+            reader.onload = function (event) {
+
+                const preview =
+                    document.getElementById("previewImg");
+
+                preview.src =
+                    event.target.result;
+
+                document
+                    .getElementById("imagePreview")
+                    .style.display = "block";
+
+
+                const previewContainer =
+                    document.getElementById("previewContainer");
+
+                previewContainer.innerHTML =
+                    `<img src="${event.target.result}" alt="Class image">`;
+
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+
+    /* ================= LESSONS ================= */
+
+    function addLesson() {
+
+        const list =
+            document.getElementById("lessonList");
+
+        const lessonNumber =
+            list.children.length + 1;
+
+
+        const lesson =
+            document.createElement("div");
+
+        lesson.className =
+            "lesson-card";
+
+
+        lesson.innerHTML = `
+
+            <div class="item-header">
+
+                <span class="item-number">
+                    Lesson ${lessonNumber}
+                </span>
+
+                <button
+                    class="remove-btn"
+                    onclick="removeItem(this)">
+                    Remove
+                </button>
+
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+
+                    <label>Lesson Title</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter lesson title">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Duration</label>
+
+                    <input
+                        type="text"
+                        placeholder="e.g. 45 min">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Lesson Type</label>
+
+                    <select>
+
+                        <option>Live Session</option>
+                        <option>Recorded</option>
+                        <option>Assignment</option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group full">
+
+                    <label>Description</label>
+
+                    <textarea
+                        placeholder="Describe this lesson..."></textarea>
+
+                </div>
+
+            </div>
+        `;
+
+
+        list.appendChild(lesson);
+
+        renumberItems(
+            list,
+            "Lesson"
+        );
+
+    }
+
+
+    /* ================= LECTURES ================= */
+
+    function addLecture() {
+
+        const list =
+            document.getElementById("lectureList");
+
+        const lectureNumber =
+            list.children.length + 1;
+
+
+        const lecture =
+            document.createElement("div");
+
+        lecture.className =
+            "lecture-card";
+
+
+        lecture.innerHTML = `
+
+            <div class="item-header">
+
+                <span class="item-number">
+                    Lecture ${lectureNumber}
+                </span>
+
+                <button
+                    class="remove-btn"
+                    onclick="removeItem(this)">
+                    Remove
+                </button>
+
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+
+                    <label>Lecture Title</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter lecture title">
+
+                </div>
+
+                <div class="form-group full">
+
+                    <label>YouTube URL</label>
+
+                    <input
+                        type="url"
+                        placeholder="https://youtube.com/watch?v=...">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Duration</label>
+
+                    <input
+                        type="text"
+                        placeholder="e.g. 15 min">
+
+                </div>
+
+            </div>
+        `;
+
+
+        list.appendChild(lecture);
+
+        renumberItems(
+            list,
+            "Lecture"
+        );
+
+    }
+
+
+    /* ================= REMOVE ================= */
+
+    function removeItem(button) {
+
+        const card =
+            button.closest(
+                ".lesson-card, .lecture-card"
+            );
+
+        if (!card) {
+            return;
+        }
+
+        const list =
+            card.parentElement;
+
+        card.remove();
+
+
+        const prefix =
+            list.id === "lessonList"
+                ? "Lesson"
+                : "Lecture";
+
+
+        renumberItems(
+            list,
+            prefix
+        );
+
+    }
+
+
+    function renumberItems(list, prefix) {
+
+        [...list.children]
+            .forEach((item, index) => {
+
+                const label =
+                    item.querySelector(
+                        ".item-number"
+                    );
+
+                if (label) {
+
+                    label.textContent =
+                        `${prefix} ${index + 1}`;
+
+                }
+
+            });
+
+    }
+
+
+    /* ================= PREVIEW ================= */
+
+    function updatePreview() {
+
+        const name =
+            document.getElementById("className").value
+            || "Untitled Class";
+
+
+        const category =
+            document.getElementById("category").value;
+
+
+        const description =
+            document.getElementById("description").value
+            || "No description added yet.";
+
+
+        const duration =
+            document.getElementById("duration").value
+            || "Duration not specified";
+
+
+        const fee =
+            document.getElementById("fee").value;
+
+
+        const location =
+            document.getElementById("location").value
+            || "Location not specified";
+
+
+        const format =
+            document.getElementById("format").value;
+
+
+        document.getElementById("previewName")
+            .textContent = name;
+
+
+        document.getElementById("previewCategory")
+            .textContent = category;
+
+
+        document.getElementById("previewDescription")
+            .textContent = description;
+
+
+        document.getElementById("previewDuration")
+            .textContent = "⏱ " + duration;
+
+
+        document.getElementById("previewFee")
+            .textContent =
+            fee
+                ? "₹" + fee
+                : "Fee not specified";
+
+
+        document.getElementById("previewLocation")
+            .textContent =
+            "📍 " + location;
+
+
+        document.getElementById("previewFormat")
+            .textContent =
+            "🎓 " + format;
+
+    }
+
+
+    /* ================= SAVE ================= */
+
+    // "Save changes" keeps the class's current published status.
+    function saveDraft() {
+        EditClass.save(null);
+    }
+
+    // "Save & Publish" saves and makes the class visible to learners.
+    function saveAndPublish() {
+        EditClass.save(true);
+    }
+
+
+    /* ================= MOBILE SIDEBAR ================= */
+
+    function toggleMobileMenu() {
+
+        const sidebar =
+            document.querySelector(".sidebar");
+
+        if (window.innerWidth <= 700) {
+
+            if (sidebar.style.display === "block") {
+
+                sidebar.style.display = "none";
+
+            } else {
+
+                sidebar.style.display = "block";
+                sidebar.style.width = "250px";
+                sidebar.style.boxShadow =
+                    "4px 0 20px rgba(0,0,0,0.12)";
+
+            }
+
+        }
+
+    }
+
+
+    /* ================= INITIALISE ================= */
+
+    updateProgress();
+    updateButtons();
+
+</script>
+
+
+<!-- Existing project scripts -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+<script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script src="../../js/edit-class.js?v=12"></script>
+
+</body>
+</html>

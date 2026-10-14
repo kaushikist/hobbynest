@@ -1,0 +1,39 @@
+<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Class | HobbyNest</title>
+  <link rel="stylesheet" href="../../styles/global.css?v=12">
+  <link rel="stylesheet" href="../../styles/chatbot.css?v=12">
+<style>
+.course-back{display:inline-block;margin-bottom:18px;font-size:12px;color:#1558c0;font-weight:700}
+.course-hero{position:relative;height:300px;overflow:hidden;border:1px solid #e1e5eb}
+.course-hero img{width:100%;height:100%;object-fit:cover}
+.course-hero .overlay h1{color:#fff;font-size:36px;margin:8px 0 4px}
+.course-hero .overlay p{color:#ffffffd9;font-size:13px}
+.course-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr);gap:28px;margin-top:28px;align-items:start}
+.course-side{position:sticky;top:90px}
+.course-price{font-family:Georgia,serif;font-size:32px;margin:4px 0 6px}
+.course-side .btn{width:100%;padding:14px;font-size:12px;margin-top:14px}
+.course-side .btn[disabled]{opacity:.6;cursor:default}
+.link-button{background:none;border:0;color:#b43d60;font-size:11px;cursor:pointer;margin-top:12px;text-decoration:underline}
+.course-section{margin-top:34px}
+.course-section h2{margin-bottom:14px}
+.course-desc{font-size:14px;line-height:1.75;color:#3d4757;white-space:pre-line}
+.lesson small{margin-left:auto;color:#8a93a2;font-size:11px}
+.lesson-text strong{display:block;font-size:13px}
+.lesson-text span{display:block;font-size:11px;color:#8a93a2;margin-top:3px}
+.lecture{cursor:pointer}
+.lecture.playing{border-color:#1558c0;background:#f4f8ff}
+.lecture.locked{cursor:default;opacity:.65}
+.notice{padding:14px 16px;background:#fff5f9;border:1px solid #f6dce8;font-size:12px;color:#8a4a66;margin-top:12px}
+.seats{font-size:12px;color:#687386}
+@media(max-width:900px){.course-layout{grid-template-columns:1fr}#sideArea{order:-1}.course-side{position:static}.course-hero{height:230px}.course-hero .overlay h1{font-size:28px}}
+</style>
+</head><body><aside class="sidebar"><div class="logo">Hobby<span>Nest</span></div><div class="nav-title">LEARN</div><a href="./user-dashboard.html" class="nav-item "><span class="nav-icon">⌂</span>Dashboard</a><a href="./explore.html" class="nav-item active"><span class="nav-icon">◈</span>Explore</a><a href="./my-courses.html" class="nav-item "><span class="nav-icon">▣</span>My Learning</a><a href="./schedule.html" class="nav-item "><span class="nav-icon">◷</span>Schedule</a><a href="./my-progress.html" class="nav-item "><span class="nav-icon">↗</span>My Progress</a><a href="./saved.html" class="nav-item "><span class="nav-icon">♡</span>Saved</a><a href="./socials.html" class="nav-item "><span class="nav-icon">✦</span>Socials</a><a href="./nearby-meetups.html" class="nav-item "><span class="nav-icon">⌖</span>Nearby Meetups</a><a href="./messages.html" class="nav-item "><span class="nav-icon">✉</span>Messages</a><a href="./profile.html" class="nav-item "><span class="nav-icon">◎</span>Profile</a><a href="./settings.html" class="nav-item "><span class="nav-icon">⚙</span>Settings</a><button class="nav-item logout-nav" type="button" data-logout><span class="nav-icon">↪</span>Log out</button><div class="sidebar-note"><small>KEEP EXPLORING</small><strong>Learning something new never goes out of style.</strong></div></aside><main class="main"><header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div class="search"><span>⌕</span><input placeholder="Search courses, skills or hobbies..."></div><div class="profile"><div class="profile-info"><strong>My account</strong><span>HobbyNest</span></div><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""></div></header><div class="content" id="coursePage">
+<p class="muted" id="courseLoading">Loading class…</p>
+</div>
+</main><div class="toast" id="toast"></div><script src="../../js/ui.js?v=12"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+  <script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script src="../../js/course-page.js?v=12"></script>
+</body></html>

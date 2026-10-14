@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1"
+    >
+
+    <title>Explore | HobbyNest</title>
+
+    <link
+        rel="stylesheet"
+        href="../../styles/global.css?v=12"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../../styles/chatbot.css?v=12"
+    >
+
+    <style>
+
+        /* ===============================
+           EXPLORE FILTERS
+        =============================== */
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 25px;
+            margin-bottom: 35px;
+        }
+
+        .filter {
+            border: 1px solid #e5e5e5;
+            background: #fff;
+            color: #555;
+            padding: 9px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .filter:hover {
+            border-color: #7c5cff;
+            color: #7c5cff;
+        }
+
+        .filter.active {
+            background: #7c5cff;
+            color: #fff;
+            border-color: #7c5cff;
+        }
+
+
+        /* ===============================
+           COURSE CARD
+        =============================== */
+
+        .explore-course-card {
+            cursor: pointer;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+            overflow: hidden;
+        }
+
+        .explore-course-card:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 12px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .course-visual {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 55px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #f2efff,
+                    #fff2f7
+                );
+        }
+
+        .course-card-body {
+            padding: 22px;
+        }
+
+        .course-card-body .tag {
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .course-card-body h3 {
+            margin: 5px 0 10px;
+        }
+
+        .course-card-body p {
+            margin-bottom: 15px;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+            color: #777;
+            margin-top: 15px;
+        }
+
+        .course-action {
+            margin-top: 18px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #7c5cff;
+        }
+
+
+        /* ===============================
+           EMPTY STATE
+        =============================== */
+
+        .skeleton-card{height:330px;border-radius:12px;background:linear-gradient(90deg,#f0f3f8 25%,#fafbfe 37%,#f0f3f8 63%);background-size:400% 100%;animation:hn-shimmer 1.35s ease infinite}@keyframes hn-shimmer{0%{background-position:100% 0}100%{background-position:0 0}}.empty-state {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+            color: #777;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+    </style>
+
+<style>.course-photo-wrap{height:190px;overflow:hidden;background:#edf2f8;border-radius:0}.course-photo-wrap .course-photo{display:block;width:100%;height:100%;object-fit:cover;transition:transform .25s ease}.explore-course-card:hover .course-photo{transform:scale(1.04)}.search-tools{display:flex;align-items:center;gap:8px}.clear-search{border:1px solid #dfe4eb;background:#fff;color:#507db8;border-radius:8px;padding:9px 12px;cursor:pointer}.clear-search:hover{background:#eef5ff}.course-photo{background:#edf2f8}.course-photo:focus{outline-offset:-4px}</style>
+</head>
+
+
+<body data-role="learner">
+
+
+<!-- =========================================
+     SIDEBAR
+========================================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        Hobby<span>Nest</span>
+    </div>
+
+
+    <div class="nav-title">
+        LEARN
+    </div>
+
+
+    <a
+        href="./user-dashboard.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">⌂</span>
+        Dashboard
+    </a>
+
+
+    <a
+        href="./explore.html"
+        class="nav-item active"
+    >
+        <span class="nav-icon">◈</span>
+        Explore
+    </a>
+
+
+    <a
+        href="./my-courses.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">▣</span>
+        My Learning
+    </a>
+
+
+    <a
+        href="./schedule.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">◷</span>
+        Schedule
+    </a>
+
+
+    <!-- NEW -->
+
+    <a
+        href="./socials.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">♧</span>
+        Socials
+    </a>
+
+
+    <!-- NEW -->
+
+    <a
+        href="./nearby-meetups.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">⌖</span>
+        Nearby Meetups
+    </a>
+
+
+    <a
+        href="./my-progress.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">↗</span>
+        My Progress
+    </a>
+
+
+    <a
+        href="./saved.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">♡</span>
+        Saved
+    </a>
+
+
+    <a
+        href="./messages.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">✉</span>
+        Messages
+    </a>
+
+
+    <a
+        href="./profile.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">◎</span>
+        Profile
+    </a>
+
+
+    <a
+        href="./settings.html"
+        class="nav-item"
+    >
+        <span class="nav-icon">⚙</span>
+        Settings
+    </a>
+
+
+    <button
+        class="nav-item logout-nav"
+        type="button"
+        data-logout
+    >
+        <span class="nav-icon">↪</span>
+        Log out
+    </button>
+
+
+    <div class="sidebar-note">
+
+        <small>
+            KEEP EXPLORING
+        </small>
+
+        <strong>
+            Learning something new never goes out of style.
+        </strong>
+
+    </div>
+
+</aside>
+
+
+
+<!-- =========================================
+     MAIN
+========================================= -->
+
+<main class="main">
+
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+        <button
+            class="mobile-menu"
+            id="mobileMenu"
+        >
+            ☰
+        </button>
+
+
+        <div class="search">
+
+            <span>⌕</span>
+
+            <input
+                id="searchInput"
+                placeholder="Search courses, skills or hobbies..."
+            >
+                    <button class="clear-search" id="clearSearch" type="button" aria-label="Clear course search">Clear</button>
+
+        </div>
+
+
+        <div class="profile">
+
+            <div class="profile-info">
+
+                <strong>
+                    My account
+                </strong>
+
+                <span>
+                    HobbyNest
+                </span>
+
+            </div>
+
+
+            <img
+                src="data:image/gif;base64,R0lGODlhAQABAAAAACw="
+                alt=""
+            >
+
+        </div>
+
+    </header>
+
+
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+
+        <div class="eyebrow">
+            Discover something new
+        </div>
+
+
+        <h1>
+            Explore
+        </h1>
+
+
+        <p class="intro">
+            Courses, creative practice and local
+            activities for everything beyond the syllabus.
+        </p>
+
+
+
+        <!-- =====================================
+             CATEGORY FILTERS
+        ====================================== -->
+
+        <div class="filter-row">
+
+
+            <button
+                class="filter active"
+                data-filter="all"
+            >
+                All
+            </button>
+
+
+            <button
+                class="filter"
+                data-filter="programming"
+            >
+                💻 Programming
+            </button>
+
+
+            <button
+                class="filter"
+                data-filter="dance"
+            >
+                💃 Dance
+            </button>
+
+
+            <button
+                class="filter"
+                data-filter="music"
+            >
+                🎵 Music
+            </button>
+
+
+            <button
+                class="filter"
+                data-filter="art"
+            >
+                🎨 Art
+            </button>
+
+
+            <button
+                class="filter"
+                data-filter="photography"
+            >
+                📸 Photography
+            </button>
+
+
+            <button
+                class="filter"
+                data-filter="craft"
+            >
+                🏺 Craft & DIY
+            </button>
+
+
+            <button
+                class="filter"
+                data-filter="community"
+            >
+                🤝 Community
+            </button>
+
+
+        </div>
+
+
+
+        <!-- =====================================
+             COURSES
+        ====================================== -->
+
+        <section class="section">
+
+
+            <div class="section-heading">
+
+                <h2>
+                    Available classes
+                </h2>
+
+                <span class="muted" id="courseCount">
+                    Click a card to explore
+                </span>
+
+            </div>
+
+
+            <div
+                class="grid"
+                id="courseGrid"
+                aria-live="polite"
+            >
+                <p class="muted" id="courseLoading">Loading classes…</p>
+            </div>
+
+
+            <!-- EMPTY STATE -->
+
+            <div
+                class="empty-state"
+                id="emptyState"
+            >
+
+                <div class="empty-icon">
+                    🔎
+                </div>
+
+                <h3>
+                    Nothing found
+                </h3>
+
+                <p>
+                    Try another category or search
+                    for something else.
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+</main>
+
+
+
+<!-- TOAST -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+
+<!-- EXISTING SCRIPTS -->
+
+<script src="../../js/ui.js?v=12"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+
+<script src="../../js/guard.js?v=13"></script>
+
+<script src="../../js/logout.js?v=12"></script>
+
+<script src="../../js/chatbot.js?v=12"></script>
+
+
+
+<script src="../../js/courses.js?v=12"></script>
+<script>
+
+    /* =========================================
+       EXPLORE — real published classes from Supabase
+    ========================================= */
+
+    (function () {
+
+        const grid = document.getElementById("courseGrid");
+        const emptyState = document.getElementById("emptyState");
+        const countLabel = document.getElementById("courseCount");
+        const searchInput = document.getElementById("searchInput");
+        const filterButtons = document.querySelectorAll(".filter");
+        const clearSearch = document.getElementById("clearSearch");
+
+        let allCourses = [];
+        let names = {};
+        let ratings = {};
+        let activeCategory = "all";
+
+        // Allow links like explore.html?q=guitar or ?category=music
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("q")) searchInput.value = params.get("q");
+        if (params.get("category")) activeCategory = params.get("category").toLowerCase();
+
+        function render() {
+            const term = searchInput.value.trim().toLowerCase();
+
+            const visible = allCourses.filter(course => {
+                const key = HN.categoryKey(course.category);
+                if (activeCategory !== "all" && key !== activeCategory) return false;
+                if (!term) return true;
+                const text = [course.title, course.description, course.category,
+                    course.level, names[course.educator_id]].join(" ").toLowerCase();
+                return text.includes(term);
+            });
+
+            grid.innerHTML = visible.map(course => {
+                const meta = HN.categoryMeta(course.category);
+                return `
+                    <article class="card explore-course-card"
+                        data-category="${HN.categoryKey(course.category)}"
+                        data-name="${HN.escapeHTML(course.title)}"
+                        tabindex="0" role="link"
+                        onclick="window.location.href='${HN.courseUrl(course.id)}'"
+                        onkeydown="if(event.key==='Enter')window.location.href='${HN.courseUrl(course.id)}'">
+                        <div class="course-visual course-photo-wrap"><img class="course-photo" src="${HN.escapeHTML(HN.courseImage(course))}" data-fallback="${HN.escapeHTML(meta.img)}" alt="${HN.escapeHTML(course.title)} course image" loading="lazy"></div>
+                        <div class="course-card-body">
+                            <span class="tag">${HN.escapeHTML(meta.label)}</span>
+                            <h3>${HN.escapeHTML(course.title)}</h3>
+                            <p>${HN.escapeHTML(course.description || "")}</p>
+                            <div class="course-meta">
+                                <span>${HN.escapeHTML(names[course.educator_id] || "")}</span>
+                                <span>${HN.ratingText(ratings[course.id])}</span>
+                            </div>
+                            <div class="course-meta">
+                                <span>${HN.escapeHTML([course.level, course.duration].filter(Boolean).join(" · "))}</span>
+                                <span><strong>${HN.formatFee(course.fee)}</strong></span>
+                            </div>
+                            <span class="course-action">View class →</span>
+                        </div>
+                    </article>`;
+            }).join("");
+
+            emptyState.style.display = visible.length === 0 ? "block" : "none";
+            emptyState.querySelector("h3").textContent =
+                allCourses.length === 0 ? "No classes yet" : "Nothing found";
+            emptyState.querySelector("p").textContent =
+                allCourses.length === 0
+                    ? "Educators haven't published any classes yet. Check back soon!"
+                    : "Try another category or search for something else.";
+            countLabel.textContent =
+                `${visible.length} ${visible.length === 1 ? "class" : "classes"}`;
+        }
+
+        filterButtons.forEach(button => {
+            button.classList.toggle("active", button.dataset.filter === activeCategory);
+            button.addEventListener("click", () => {
+                filterButtons.forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+                activeCategory = button.dataset.filter;
+                render();
+            });
+        });
+
+        searchInput.addEventListener("input", render);
+        if (clearSearch) clearSearch.addEventListener("click", () => { searchInput.value = ""; activeCategory = "all"; filterButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.filter === "all")); searchInput.focus(); render(); });
+
+        async function load() {
+            await window.nsReady;
+
+            const { data, error } = await supabaseClient
+                .from("courses")
+                .select(HN.COURSE_COLUMNS)
+                .eq("published", true)
+                .order("created_at", { ascending: false });
+
+            if (error) {
+                console.error("Explore load error:", error);
+                grid.innerHTML =
+                    `<div class="panel" role="alert"><strong>We couldn't load classes.</strong><p class="muted" style="margin:8px 0 12px">Check your connection and try again.</p><button class="btn secondary" type="button" onclick="window.location.reload()">Try again</button></div>`;
+                return;
+            }
+
+            allCourses = data || [];
+            [names, ratings] = await Promise.all([
+                HN.educatorNames(allCourses.map(c => c.educator_id)),
+                HN.ratingsFor(allCourses.map(c => c.id))
+            ]);
+            render();
+        }
+
+        load();
+
+    })();
+
+</script>
+
+
+</body>
+
+</html>

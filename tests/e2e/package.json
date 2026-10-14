@@ -1,0 +1,10 @@
+{
+  "name": "hobbynest-smoke-tests",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node smoke.mjs" },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "playwright": "^1.56.0"
+  }
+}

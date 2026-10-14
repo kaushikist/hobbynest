@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-test | HobbyNest</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; color: #182235; }
+  h1 { font-family: Georgia, serif; font-weight: 500; }
+  .row { display: flex; gap: 12px; padding: 12px 14px; border: 1px solid #e1e5eb; margin-bottom: 8px; align-items: flex-start; }
+  .icon { width: 22px; font-size: 16px; }
+  .ok { border-color: #bfe6d6; background: #f3fbf7; }
+  .bad { border-color: #f3c4d2; background: #fff5f8; }
+  .skip { color: #6b7280; }
+  small { display: block; color: #6b7280; margin-top: 4px; word-break: break-word; }
+  code { background: #f1f3f7; padding: 2px 5px; }
+  button { background: #1558c0; color: #fff; border: 0; padding: 12px 18px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>HobbyNest self-test</h1>
+<p>Log in first (learner or educator), then open this page. It tries each feature for real,
+cleans up after itself, and shows the exact error if something fails. Take a screenshot of the result.</p>
+<button id="run" type="button">Run self-test</button>
+<div id="out" style="margin-top:20px"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script>
+// Works whether this file sits in src/screens/ or in a subfolder like src/screens/auth/.
+window.selftestReady = (function () {
+  const inSubfolder = /\/screens\/[^/]+\/[^/]*$/.test(location.pathname);
+  const base = inSubfolder ? "../../js/" : "../js/";
+  const load = src => new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = base + src + "?v=12";
+    s.onload = resolve;
+    s.onerror = () => reject(new Error("Couldn't load " + base + src));
+    document.head.appendChild(s);
+  });
+  return load("supabase.js").then(() => load("courses.js")).then(() => load("email-config.js")).then(() => load("notify.js"));
+})();
+</script>
+<script>
+(function () {
+  const out = document.getElementById("out");
+
+  function row(status, title, detail) {
+    const icon = { ok: "✓", bad: "✗", skip: "–" }[status];
+    const div = document.createElement("div");
+    div.className = `row ${status}`;
+    div.innerHTML = `<span class="icon">${icon}</span><div><strong></strong><small></small></div>`;
+    div.querySelector("strong").textContent = title;
+    div.querySelector("small").textContent = detail || "";
+    out.appendChild(div);
+  }
+
+  function errText(error) {
+    if (!error) return "";
+    return [error.code, error.message, error.details, error.hint].filter(Boolean).join(" | ");
+  }
+
+  function heading(text) {
+    const h = document.createElement("h3");
+    h.textContent = text;
+    h.style.cssText = "margin:22px 0 10px;font-family:Georgia,serif;font-weight:500";
+    out.appendChild(h);
+  }
+
+  // Saves your current profile + settings back unchanged (proves saving works, changes nothing).
+  async function profileChecks(user) {
+    const { data, error } = await supabaseClient.rpc("get_my_profile");
+    if (error || !data || !data.length) {
+      row("bad", "Read your full profile", errText(error) || "get_my_profile returned nothing — run the latest database.sql");
+      return;
+    }
+    const me = data[0];
+    const hasNewColumns = "headline" in me && "settings" in me && "interests" in me;
+    row(hasNewColumns ? "ok" : "bad", "Read your full profile",
+        hasNewColumns ? `email ${me.email || "?"} · photo ${me.profile_image ? "set" : "not set"}`
+                      : "Profile is missing the Batch 4 columns — run the latest database.sql");
+    if (!hasNewColumns) return;
+
+    const { error: pErr } = await supabaseClient.from("profiles")
+      .update({ full_name: me.full_name, headline: me.headline, interests: me.interests || [] })
+      .eq("id", user.id);
+    row(pErr ? "bad" : "ok", "Save profile details", errText(pErr) || "Saved (your details were written back unchanged)");
+
+    const { error: sErr } = await supabaseClient.from("profiles")
+      .update({ settings: me.settings || {} }).eq("id", user.id);
+    row(sErr ? "bad" : "ok", "Save settings", errText(sErr) || "Saved (unchanged)");
+  }
+
+  // Uploads a 1×1 test image to your own folder in the bucket, checks its public link, deletes it.
+  async function photoCheck(bucket, user, title) {
+    const png = Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="), c => c.charCodeAt(0));
+    const path = `${user.id}/selftest-${Date.now()}.png`;
+    const { error } = await supabaseClient.storage.from(bucket)
+      .upload(path, new Blob([png], { type: "image/png" }), { contentType: "image/png", upsert: false });
+    if (error) {
+      const msg = errText(error) || error.message || String(error);
+      const hint = /bucket not found/i.test(msg)
+        ? " → The photo storage isn't created yet: run the latest database.sql."
+        : /row-level security|unauthorized|policy/i.test(msg)
+          ? " → Storage rules are missing: run the latest database.sql (or tell Claude the SQL said it couldn't set up storage rules)."
+          : "";
+      row("bad", title, msg + hint);
+      return;
+    }
+    const url = supabaseClient.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    const { error: rmErr } = await supabaseClient.storage.from(bucket).remove([path]);
+    row(rmErr ? "bad" : "ok", title, rmErr ? "Uploaded, but deleting failed: " + errText(rmErr) : `Uploaded to ${bucket}/ and deleted again (${url.split("/storage/")[0]}/storage/…)`);
+  }
+
+  // Posts a test review and deletes it — or, if you already reviewed, re-saves yours unchanged.
+  async function reviewCheck(user, courseId) {
+    heading("Reviews");
+    const { data: existing, error: rErr } = await supabaseClient.from("reviews")
+      .select("id, rating, comment").eq("learner_id", user.id).eq("course_id", courseId).maybeSingle();
+    if (rErr) { row("bad", "Read reviews", errText(rErr)); return; }
+    if (existing) {
+      const { error } = await supabaseClient.from("reviews")
+        .update({ rating: existing.rating, comment: existing.comment }).eq("id", existing.id);
+      row(error ? "bad" : "ok", `Update your review on class #${courseId}`, errText(error) || "Saved (unchanged)");
+      return;
+    }
+    const { data: created, error } = await supabaseClient.from("reviews")
+      .insert({ learner_id: user.id, course_id: courseId, rating: 5, comment: "Self-test review (auto-deleted)" })
+      .select("id").single();
+    row(error ? "bad" : "ok", `Post a review on class #${courseId}`, errText(error) || "Posted");
+    if (created) {
+      const { error: dErr } = await supabaseClient.from("reviews").delete().eq("id", created.id);
+      row(dErr ? "bad" : "ok", "Delete the test review", errText(dErr) || "Deleted (test cleaned up)");
+    }
+  }
+
+  // Creates a test post, likes and comments on it, then deletes it (likes + comments go with it).
+  async function socialsCheck(user) {
+    const { data: feed, error: fErr } = await supabaseClient.from("social_posts").select("id").limit(50);
+    row(fErr ? "bad" : "ok", "Read the feed", fErr ? errText(fErr) + (/does not exist|schema cache/i.test(errText(fErr)) ? " → run the latest database.sql" : "") : `${feed.length} recent post(s) visible`);
+    if (fErr) return;
+
+    const { data: post, error: pErr } = await supabaseClient.from("social_posts")
+      .insert({ user_id: user.id, caption: "Self-test post (auto-deleted)", interest: "Other" })
+      .select("id").single();
+    row(pErr ? "bad" : "ok", "Create a post", errText(pErr) || "Posted");
+    if (!post) return;
+
+    const { error: lErr } = await supabaseClient.from("post_likes").insert({ post_id: post.id, user_id: user.id });
+    row(lErr ? "bad" : "ok", "Like a post", errText(lErr) || "Liked");
+    const { error: cErr } = await supabaseClient.from("post_comments").insert({ post_id: post.id, user_id: user.id, comment: "Self-test comment" });
+    row(cErr ? "bad" : "ok", "Comment on a post", errText(cErr) || "Commented");
+
+    const { error: dErr } = await supabaseClient.from("social_posts").delete().eq("id", post.id);
+    const { data: left } = await supabaseClient.from("post_comments").select("id").eq("post_id", post.id);
+    row(dErr ? "bad" : "ok", "Delete your post", errText(dErr) || `Deleted (likes + comments removed too: ${left && left.length === 0 ? "yes" : "no"})`);
+
+    await photoCheck("social-posts", user, "Upload + delete a post photo");
+  }
+
+  // Creates a test meetup tomorrow, edits it, reads its count, then deletes it.
+  async function meetupsCheck(user) {
+    const { data: list, error: lErr } = await supabaseClient.from("meetups").select("id, created_by").limit(100);
+    if (lErr) {
+      row("bad", "Read meetups", errText(lErr) + (/does not exist|schema cache/i.test(errText(lErr)) ? " → run the latest database.sql" : ""));
+      return;
+    }
+    row("ok", "Read meetups", `${list.length} meetup(s) visible`);
+
+    const startsAt = new Date(Date.now() + 86400000);
+    const { data: m, error: cErr } = await supabaseClient.from("meetups").insert({
+      created_by: user.id, title: "Self-test meetup (auto-deleted)", category: "community",
+      venue: "Self-test venue", starts_at: startsAt.toISOString(),
+      ends_at: new Date(startsAt.getTime() + 7200000).toISOString(), capacity: 5
+    }).select("id").single();
+    row(cErr ? "bad" : "ok", "Host a meetup", errText(cErr) || "Created");
+    if (!m) return;
+
+    const { error: uErr } = await supabaseClient.from("meetups").update({ capacity: 6 }).eq("id", m.id);
+    row(uErr ? "bad" : "ok", "Edit your meetup", errText(uErr) || "Saved");
+
+    const { data: counts, error: nErr } = await supabaseClient.rpc("meetup_counts", { p_ids: [m.id] });
+    row(nErr ? "bad" : "ok", "Count people going", errText(nErr) || `${(counts && counts[0] && counts[0].going) || 0} going (as expected for a new meetup)`);
+
+    const { error: jErr } = await supabaseClient.from("meetup_registrations").insert({ meetup_id: m.id, user_id: user.id });
+    row(jErr ? "ok" : "bad", "Hosts can't join their own meetup", jErr ? "Blocked, as expected" : "Joining your own meetup was allowed — run the latest database.sql");
+
+    const { data: mine, error: rErr } = await supabaseClient.from("meetup_registrations").select("meetup_id").eq("user_id", user.id);
+    row(rErr ? "bad" : "ok", "Read meetups you're going to", errText(rErr) || `${mine.length} meetup(s)`);
+
+    const { error: dErr } = await supabaseClient.from("meetups").delete().eq("id", m.id);
+    row(dErr ? "bad" : "ok", "Cancel your meetup", errText(dErr) || "Deleted (test cleaned up)");
+  }
+
+  // Reads conversations and contacts. Sends nothing, so nobody gets a test message.
+  async function messagesCheck(user) {
+    const { data: msgs, error: mErr } = await supabaseClient.from("messages")
+      .select("id, read_at").or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`).limit(500);
+    if (mErr) {
+      row("bad", "Read your messages", errText(mErr) + (/read_at/i.test(errText(mErr)) ? " → run the latest database.sql" : ""));
+      return;
+    }
+    const { count } = await supabaseClient.from("messages").select("id", { count: "exact", head: true })
+      .eq("receiver_id", user.id).is("read_at", null);
+    row("ok", "Read your messages", `${msgs.length} message(s) · ${count || 0} unread`);
+
+    const { data: contacts, error: cErr } = await supabaseClient.rpc("my_contacts");
+    row(cErr ? "bad" : "ok", "People you can message", errText(cErr) || (contacts.length
+      ? `${contacts.length}: ` + contacts.slice(0, 5).map(c => `${c.full_name || "?"} (${String(c.reason).split(" ·")[0]})`).join(", ")
+      : "Nobody yet — join a class or meetup (educators: get a student) and they'll appear"));
+
+    if (contacts && contacts.length) {
+      const { data: ok, error: aErr } = await supabaseClient.rpc("can_message", { p_other: contacts[0].user_id });
+      row(!aErr && ok === true ? "ok" : "bad", `Allowed to message ${contacts[0].full_name || "your first contact"}`, errText(aErr) || (ok ? "Yes" : "No — run the latest database.sql"));
+    }
+
+    const { error: rErr } = await supabaseClient.from("messages").update({ read_at: new Date().toISOString() })
+      .eq("receiver_id", user.id).eq("id", -1);
+    row(rErr ? "bad" : "ok", "Mark messages as read", errText(rErr) || "Allowed");
+
+    const { error: eErr } = await supabaseClient.from("messages").update({ message: "edited" }).eq("id", -1);
+    row(eErr ? "ok" : "bad", "Messages can't be edited", eErr ? "Blocked, as expected" : "Editing was allowed — run the latest database.sql");
+
+    // Live updates (Supabase Realtime)
+    const status = await new Promise(resolve => {
+      let done = false;
+      const finish = value => { if (!done) { done = true; resolve(value); } };
+      const channel = supabaseClient.channel("selftest-" + Date.now())
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, () => {})
+        .subscribe(s => finish(s));
+      setTimeout(() => finish("TIMED_OUT"), 6000);
+      setTimeout(() => supabaseClient.removeChannel(channel), 6500);
+    });
+    row(status === "SUBSCRIBED" ? "ok" : "skip", "Live message updates",
+      status === "SUBSCRIBED" ? "Connected — new messages appear instantly"
+        : `Not connected (${status}) — messages still work and refresh every few seconds`);
+  }
+
+  // Batch 8: database update, session notices, account deletion, emails. Changes nothing.
+  async function serviceChecks(user) {
+    const { data: setup, error: sErr } = await supabaseClient.rpc("hobbynest_setup_check");
+    if (sErr || !setup) {
+      row("bad", "Latest database.sql", "NOT RUN YET → Supabase → SQL Editor → paste ALL of database.sql → Run (SUPABASE-SETUP.txt, step 1)");
+    } else {
+      row("ok", "Latest database.sql", "Installed (version " + setup.version + ")");
+      row(setup.delete_function ? "ok" : "bad", "Delete account", setup.delete_function ? "Ready" : "Missing → run the latest database.sql");
+      row(Number(setup.blocking_foreign_keys) === 0 ? "ok" : "bad", "Nothing blocks account deletion",
+        Number(setup.blocking_foreign_keys) === 0 ? "All links between tables cascade" : setup.blocking_foreign_keys + " old rule(s) block deletion → run the latest database.sql");
+      row(setup.session_notices && setup.message_kind ? "ok" : "bad", "Session notices in Messages",
+        setup.session_notices ? "Ready — learners get scheduled sessions in their inbox" : "Missing → run the latest database.sql");
+      row(setup.realtime_messages ? "ok" : "skip", "Live messages (Realtime)",
+        setup.realtime_messages ? "On" : "Off — messages still arrive, every few seconds instead of instantly");
+    }
+
+    const emailOn = window.HNNotify && HNNotify.emailjsReady();
+    row(emailOn ? "ok" : "skip", "Emails (welcome + account deleted)",
+      emailOn ? "EmailJS keys are filled in (src/js/email-config.js)" : "Optional — not set up. Screens still show every notice. See SUPABASE-SETUP.txt step 4");
+
+    const verifyUrl = new URL("auth/verify.html", location.href.replace(/screens\/.*$/, "screens/")).href;
+    const isLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    const siteHint = isLocal
+      ? "Set Site URL to your REAL production Netlify origin (not this local address). Add that production origin + /** under Redirect URLs, and also add http://127.0.0.1:5500/** for Live Server if needed. "
+      : "Set Site URL to this production origin and add " + location.origin + "/** under Redirect URLs. ";
+    row("skip", "Check by hand: Supabase URL settings",
+      "Open Authentication → URL Configuration. " + siteHint +
+      "Verification page for this run: " + verifyUrl + ". This check cannot read your dashboard settings; confirm them manually.");
+  }
+
+  // Batch 7: launch hardening + starter catalog. Changes nothing permanently.
+  async function launchChecks(user, profile) {
+    // Logged-out visitors must not be able to call app functions.
+    const anon = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
+      { auth: { persistSession: false, autoRefreshToken: false, storageKey: "hn-selftest-anon" } });
+    const { error: aErr } = await anon.rpc("meetup_counts", { p_ids: [1] });
+    row(aErr ? "ok" : "bad", "Logged-out visitors are locked out",
+      aErr ? "Blocked, as expected" : "A logged-out visitor could call app functions → run the latest database.sql");
+
+    // Photo links must be https (tries a bad link on your profile, then puts yours back).
+    const { data: mine } = await supabaseClient.rpc("get_my_profile");
+    const original = mine && mine[0] ? mine[0].profile_image : null;
+    const { error: iErr } = await supabaseClient.from("profiles").update({ profile_image: "javascript:alert(1)" }).eq("id", user.id);
+    if (!iErr) await supabaseClient.from("profiles").update({ profile_image: original }).eq("id", user.id);
+    row(iErr ? "ok" : "bad", "Unsafe photo links are rejected",
+      iErr ? "Blocked, as expected" : "An unsafe link was accepted (and removed again) → run the latest database.sql");
+
+    // Starter catalog (seed-demo.sql) — optional.
+    const { data: courses, error: cErr } = await supabaseClient.from("courses").select("id, category").eq("published", true);
+    if (cErr) { row("bad", "Read published classes", errText(cErr)); return; }
+    const categories = new Set(courses.map(c => HN.categoryKey(c.category)));
+    const { count: lectures } = await supabaseClient.from("course_lectures").select("id", { count: "exact", head: true });
+    row(categories.size >= 7 ? "ok" : "skip", "Classes in every category",
+      `${courses.length} published class(es) in ${categories.size} of 7 categories · ${lectures || 0} video lecture(s) you can see` +
+      (categories.size >= 7 ? "" : " — run seed-demo.sql to add the starter catalog (optional)"));
+  }
+
+  async function run() {
+    out.innerHTML = "";
+
+    // 1. Are the latest (Batch 4) files in place?
+    const filesOk = window.HN && typeof HN.progressFor === "function" && typeof HN.meetupWhen === "function"
+      && typeof HN.safeUrl === "function" && window.HN_VERSION >= 12;
+    row(filesOk ? "ok" : "bad", "App files are the latest version (Batch 8)",
+        filesOk ? "courses.js is version " + window.HN_VERSION
+                : "OLD FILES: Live Server is serving an older folder. Open the hobbynest folder from the Batch 8 zip, then press Ctrl+Shift+R.");
+
+    // 2. Logged in?
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (!user) {
+      row("bad", "Logged in", errText(userError) || "Not logged in — log in first, then reopen this page.");
+      return;
+    }
+    const { data: profile, error: profileError } = await supabaseClient
+      .from("profiles").select("role, full_name, onboarding_complete").eq("id", user.id).single();
+    if (!profile) { row("bad", "Profile", errText(profileError)); return; }
+    row("ok", "Logged in", `${profile.full_name || user.email} · role: ${profile.role} · onboarding complete: ${profile.onboarding_complete}`);
+
+    // ---- Batch 7: launch checks ----
+    heading("Launch checks");
+    await launchChecks(user, profile);
+
+    // ---- Batch 4: profile, settings, photos ----
+    heading("Profile, settings & photos");
+    await profileChecks(user);
+    await photoCheck("avatars", user, "Upload + delete a profile photo");
+
+    // ---- Batch 5: Socials ----
+    heading("Socials");
+    await socialsCheck(user);
+
+    // ---- Batch 6: Meetups + Messages ----
+    heading("Nearby Meetups");
+    await meetupsCheck(user);
+    heading("Messages");
+    await messagesCheck(user);
+
+    heading("Batch 8: database update, deletion & emails");
+    await serviceChecks(user);
+
+    heading("Classes, progress & sessions");
+    // 3. Classes visible
+    const { data: courses, error: cErr } = await supabaseClient
+      .from("courses").select("id, title, educator_id, published").order("id");
+    row(cErr ? "bad" : "ok", "Read classes", cErr ? errText(cErr) : `${courses.length} visible: ${courses.map(c => `#${c.id} ${c.title}${c.published ? "" : " (unpublished)"}`).join(", ")}`);
+    if (cErr || !courses.length) return;
+
+    if (profile.role === "educator") {
+      const mine = courses.filter(c => c.educator_id === user.id);
+      row(mine.length ? "ok" : "bad", "Your own classes", mine.length ? mine.map(c => c.title).join(", ") : "You don't own any class yet");
+
+      // Schedule + delete a test session
+      const { data: s, error: sErr } = await supabaseClient.from("sessions").insert({
+        educator_id: user.id,
+        course_id: null, // not tied to a class, so no learner gets a session notice
+        title: "Self-test session (auto-deleted)",
+        session_date: new Date(Date.now() + 86400000).toISOString(),
+        meeting_link: "https://meet.google.com/test"
+      }).select("id").single();
+      row(sErr ? "bad" : "ok", "Schedule a session", sErr ? errText(sErr) : "Saved and readable");
+      if (s) {
+        const { error: dErr } = await supabaseClient.from("sessions").delete().eq("id", s.id);
+        row(dErr ? "bad" : "ok", "Delete a session", errText(dErr) || "Deleted");
+      }
+
+      await photoCheck("course-images", user, "Upload + delete a class image");
+      if (mine.length) {
+        const ratings = await HN.ratingsFor(mine.map(c => c.id));
+        const n = Object.values(ratings).reduce((sum, r) => sum + r.count, 0);
+        row("ok", "Read ratings for your classes", `${n} review(s) across your classes`);
+      }
+
+      // Read students' progress
+      if (mine.length) {
+        const ids = mine.map(c => c.id);
+        const { data: en, error: eErr } = await supabaseClient.from("enrollments").select("learner_id, course_id").in("course_id", ids);
+        row(eErr ? "bad" : "ok", "Read your students", eErr ? errText(eErr) : `${en.length} enrollment(s)`);
+        const { data: ls } = await supabaseClient.from("lessons").select("id").in("course_id", ids);
+        const { data: pr, error: pErr } = await supabaseClient.from("progress").select("learner_id")
+          .in("lesson_id", (ls || []).map(l => l.id).concat([-1]));
+        row(pErr ? "bad" : "ok", "Read students' progress", pErr ? errText(pErr) : `${pr.length} finished lesson(s) across your learners`);
+      }
+      return;
+    }
+
+    // ---- learner ----
+    const target = courses.find(c => c.published && c.educator_id !== user.id) || courses[0];
+
+    // Save + unsave
+    const { error: svErr } = await supabaseClient.from("saved_courses").insert({ learner_id: user.id, course_id: target.id });
+    row(svErr && svErr.code !== "23505" ? "bad" : "ok", `Save class "${target.title}"`, svErr ? errText(svErr) : "Saved");
+    const { error: usErr } = await supabaseClient.from("saved_courses").delete().eq("learner_id", user.id).eq("course_id", target.id);
+    row(usErr ? "bad" : "ok", "Remove from Saved", errText(usErr) || "Removed");
+
+    // Enrolled classes + progress
+    const { data: en, error: eErr } = await supabaseClient.from("enrollments").select("course_id").eq("learner_id", user.id);
+    if (eErr) { row("bad", "Read your enrollments", errText(eErr)); return; }
+    if (!en.length) {
+      row("skip", "Tick a lesson", "You're not enrolled in any class yet — open a class and click Enroll, then run this again.");
+      return;
+    }
+    row("ok", "Your enrollments", `${en.length} class(es): ${en.map(e => "#" + e.course_id).join(", ")}`);
+    await reviewCheck(user, en[0].course_id);
+
+    const { data: lessons, error: lErr } = await supabaseClient.from("lessons").select("id, title, course_id")
+      .in("course_id", en.map(e => e.course_id)).order("lesson_order");
+    if (lErr || !lessons.length) {
+      row(lErr ? "bad" : "skip", "Read lessons", lErr ? errText(lErr) : "Your enrolled classes have no lessons yet — add lessons in Edit Class.");
+      return;
+    }
+    const lesson = lessons[0];
+    const { data: already } = await supabaseClient.from("progress").select("id").eq("learner_id", user.id).eq("lesson_id", lesson.id).maybeSingle();
+    if (already) {
+      row("ok", `Tick lesson "${lesson.title}"`, "Already ticked — progress is saving fine");
+    } else {
+      const { error: tErr } = await supabaseClient.from("progress").insert({
+        learner_id: user.id, lesson_id: lesson.id, completed: true, completed_at: new Date().toISOString()
+      });
+      row(tErr ? "bad" : "ok", `Tick lesson "${lesson.title}"`, errText(tErr) || "Saved");
+      if (!tErr) {
+        const { error: uErr } = await supabaseClient.from("progress").delete().eq("learner_id", user.id).eq("lesson_id", lesson.id);
+        row(uErr ? "bad" : "ok", "Un-tick lesson", errText(uErr) || "Removed (test cleaned up)");
+      }
+    }
+
+    // Sessions
+    const { data: ss, error: ssErr } = await supabaseClient.from("sessions").select("id, title");
+    row(ssErr ? "bad" : "ok", "Read live sessions", ssErr ? errText(ssErr) : `${ss.length} visible`);
+  }
+
+  document.getElementById("run").addEventListener("click", () => {
+    window.selftestReady.then(run).catch(error => row("bad", "Unexpected error", String(error && error.message || error)));
+  });
+})();
+</script>
+</body>
+</html>

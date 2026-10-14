@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Learning | HobbyNest</title>
+  <link rel="stylesheet" href="../../styles/global.css?v=12">
+  <link rel="stylesheet" href="../../styles/chatbot.css?v=12">
+</head><body data-role="learner"><aside class="sidebar"><div class="logo">Hobby<span>Nest</span></div><div class="nav-title">LEARN</div><a href="./user-dashboard.html" class="nav-item "><span class="nav-icon">⌂</span>Dashboard</a><a href="./explore.html" class="nav-item "><span class="nav-icon">◈</span>Explore</a><a href="./my-courses.html" class="nav-item active"><span class="nav-icon">▣</span>My Learning</a><a href="./schedule.html" class="nav-item "><span class="nav-icon">◷</span>Schedule</a><a href="./my-progress.html" class="nav-item "><span class="nav-icon">↗</span>My Progress</a><a href="./saved.html" class="nav-item "><span class="nav-icon">♡</span>Saved</a><a href="./socials.html" class="nav-item "><span class="nav-icon">✦</span>Socials</a><a href="./nearby-meetups.html" class="nav-item "><span class="nav-icon">⌖</span>Nearby Meetups</a><a href="./messages.html" class="nav-item "><span class="nav-icon">✉</span>Messages</a><a href="./profile.html" class="nav-item "><span class="nav-icon">◎</span>Profile</a><a href="./settings.html" class="nav-item "><span class="nav-icon">⚙</span>Settings</a><button class="nav-item logout-nav" type="button" data-logout><span class="nav-icon">↪</span>Log out</button><div class="sidebar-note"><small>KEEP EXPLORING</small><strong>Learning something new never goes out of style.</strong></div></aside><main class="main"><header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div class="search"><span>⌕</span><input placeholder="Search courses, skills or hobbies..."></div><div class="profile"><div class="profile-info"><strong>My account</strong><span>HobbyNest</span></div><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""></div></header><div class="content"><div class="eyebrow">Your learning space</div><h1>My Courses</h1><p class="intro">Every class you've joined, in one place. Open one to watch its lectures.</p><section class="section"><div class="section-heading"><h2>Your classes</h2><span class="muted" id="myCount"></span></div><div class="grid" id="myCoursesGrid"><p class="muted">Loading your classes…</p></div><div class="empty" id="myCoursesEmpty">You haven't joined any classes yet.<br><br><a class="btn" href="./explore.html">Explore classes →</a></div></section></div></main><div class="toast" id="toast"></div><script src="../../js/ui.js?v=12"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=12"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=12"></script>
+  <script src="../../js/chatbot.js?v=12"></script>
+<script src="../../js/courses.js?v=12"></script>
+<script>
+(async function () {
+    const grid = document.getElementById("myCoursesGrid");
+    const empty = document.getElementById("myCoursesEmpty");
+    try {
+        const { user } = await window.nsReady;
+        const courses = await HN.myEnrolledCourses(user.id);
+        const names = await HN.educatorNames(courses.map(c => c.educator_id));
+        const { byCourse } = await HN.progressFor(user.id, courses.map(c => c.id));
+        grid.innerHTML = courses.map(c => HN.learnerCourseCard(c, names[c.educator_id], byCourse[c.id])).join("");
+        empty.classList.toggle("show", courses.length === 0);
+        document.getElementById("myCount").textContent =
+            courses.length ? `${courses.length} ${courses.length === 1 ? "class" : "classes"}` : "";
+    } catch (error) {
+        console.error("My courses error:", error);
+        grid.innerHTML = '<p class="muted">Couldn\'t load your classes. Please refresh the page.</p>';
+    }
+})();
+</script>
+</body></html>

@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recorded Lectures | HobbyNest</title>
+
+    <link rel="stylesheet" href="../../styles/global.css?v=13">
+    <link rel="stylesheet" href="../../styles/chatbot.css?v=13">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f7f8fc;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: #fff;
+            border-right: 1px solid #e8e8ef;
+            padding: 24px 16px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            padding: 0 14px 28px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #17172b;
+        }
+
+        .brand span {
+            color: #1558c0;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9999a8;
+            padding: 0 14px;
+            margin: 20px 0 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            margin: 4px 0;
+            border-radius: 12px;
+            color: #5e5e70;
+            text-decoration: none;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        .nav-item:hover {
+            background: #eef5ff;
+            color: #1558c0;
+        }
+
+        .nav-item.active {
+            background: #eef5ff;
+            color: #1558c0;
+            font-weight: 600;
+        }
+        .profile-link:focus-visible, .nav-item:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #e65b9b; outline-offset: 3px; }
+        .lecture-card { min-width: 0; }
+        .lecture-title, .lecture-description { overflow-wrap: anywhere; }
+        .lecture-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .lecture-actions button { border:1px solid #dce4ef; background:#eef5ff; color:#1558c0; border-radius:8px; padding:8px 10px; cursor:pointer; }
+        .lecture-actions .delete-btn { background:#fff0f3; color:#b43d60; border-color:#f4d4dd; }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+        }
+
+        /* MAIN */
+
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 72px;
+            background: #fff;
+            border-bottom: 1px solid #e8e8ef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-link {
+            color: #666679;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: #1558c0;
+        }
+
+        .mobile-menu {
+            display: none;
+            border: none;
+            background: transparent;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .page-content {
+            padding: 32px;
+            max-width: 1450px;
+            margin: auto;
+        }
+
+        /* HEADER */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+            color: #19192b;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #77778a;
+            font-size: 14px;
+        }
+
+        .add-btn {
+            border: none;
+            background: #1558c0;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .add-btn:hover {
+            background: #1249a0;
+        }
+
+        /* STATS */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e8e8ef;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #eef5ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 13px;
+            font-size: 19px;
+        }
+
+        .stat-number {
+            font-size: 25px;
+            font-weight: 750;
+            color: #1d1d30;
+        }
+
+        .stat-label {
+            color: #858596;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        /* TOOLBAR */
+
+        .toolbar {
+            background: white;
+            border: 1px solid #e8e8ef;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box span {
+            position: absolute;
+            left: 13px;
+            top: 11px;
+            color: #9999a8;
+        }
+
+        .search-box input {
+            width: 100%;
+            border: 1px solid #dedee8;
+            border-radius: 10px;
+            padding: 11px 13px 11px 38px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #1558c0;
+        }
+
+        .filter-select {
+            border: 1px solid #dedee8;
+            border-radius: 10px;
+            padding: 11px 14px;
+            background: white;
+            color: #555568;
+            font-family: inherit;
+            outline: none;
+        }
+
+        /* LECTURE GRID */
+
+        .lecture-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .lecture-card {
+            background: white;
+            border: 1px solid #e8e8ef;
+            border-radius: 17px;
+            overflow: hidden;
+            transition: .2s;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 30, 60, .07);
+        }
+
+        .thumbnail {
+            height: 185px;
+            position: relative;
+            background: #eef5ff;
+            overflow: hidden;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumbnail-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+        }
+
+        .play-button {
+            position: absolute;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,.94);
+            color: #1558c0;
+            font-size: 21px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,.12);
+        }
+
+        .duration-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(20,20,30,.8);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .lecture-body {
+            padding: 18px;
+        }
+
+        .lecture-category {
+            color: #1558c0;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+        }
+
+        .lecture-title {
+            margin: 7px 0;
+            color: #202033;
+            font-size: 17px;
+            line-height: 1.35;
+        }
+
+        .lecture-description {
+            color: #858596;
+            font-size: 12px;
+            line-height: 1.5;
+            min-height: 37px;
+        }
+
+        .lecture-meta {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #858596;
+            font-size: 11px;
+            margin-top: 13px;
+        }
+
+        .lecture-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 17px;
+        }
+
+        .lecture-actions button {
+            flex: 1;
+            border: 1px solid #dedee8;
+            background: white;
+            color: #5f5f70;
+            border-radius: 9px;
+            padding: 9px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .lecture-actions button:hover {
+            background: #fff5f9;
+            color: #1558c0;
+        }
+
+        .lecture-actions .delete-btn:hover {
+            background: #fff1f1;
+            color: #d85e5e;
+        }
+
+        /* EMPTY */
+
+        .empty-state {
+            display: none;
+            background: white;
+            border: 1px solid #e8e8ef;
+            border-radius: 17px;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-state .emoji {
+            font-size: 45px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            color: #242438;
+            margin: 0 0 7px;
+        }
+
+        .empty-state p {
+            color: #858596;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        /* MODAL */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20,20,35,.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: min(850px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 18px;
+            top: 15px;
+            border: none;
+            background: #f3f3f7;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .modal h2 {
+            margin: 0 45px 18px 0;
+            color: #222235;
+        }
+
+        .video-container {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #111;
+            border-radius: 13px;
+            overflow: hidden;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .modal-info {
+            padding-top: 17px;
+        }
+
+        .modal-info p {
+            color: #77778a;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* EDIT FORM */
+
+        .edit-form {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid #ededf2;
+            padding-top: 20px;
+        }
+
+        .edit-form.show {
+            display: block;
+        }
+
+        .edit-group {
+            margin-bottom: 14px;
+        }
+
+        .edit-group label {
+            display: block;
+            color: #555568;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .edit-group input,
+        .edit-group textarea,
+        .edit-group select {
+            width: 100%;
+            border: 1px solid #dedee8;
+            border-radius: 9px;
+            padding: 10px 12px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .edit-group textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .modal-btn {
+            border: none;
+            border-radius: 9px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .modal-btn.cancel {
+            background: #f2f2f6;
+            color: #666679;
+        }
+
+        .modal-btn.save {
+            background: #1558c0;
+            color: white;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 1100px) {
+            .lecture-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.mobile-open {
+                display: block;
+                width: 250px;
+                box-shadow: 5px 0 25px rgba(0,0,0,.12);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .topbar {
+                padding: 0 18px;
+            }
+
+            .page-content {
+                padding: 18px;
+            }
+
+            .page-header {
+                flex-direction: column;
+            }
+
+            .add-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .lecture-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body data-role="educator">
+
+<div class="page-wrapper">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            Hobby<span>Nest</span>
+        </div>
+
+        <div class="nav-title">Teaching</div>
+
+        <a href="instructor-dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            Dashboard
+        </a>
+
+        <a href="instructor-dashboard.html#classes" class="nav-item">
+            <span class="nav-icon">▣</span>
+            My Classes
+        </a>
+
+        <a href="add-class.html" class="nav-item">
+            <span class="nav-icon">➕</span>
+            Add Class
+        </a>
+
+        <a href="recorded-lectures.html" class="nav-item active">
+            <span class="nav-icon">▶️</span>
+            Recorded Lectures
+        </a>
+
+        <a href="instructor-dashboard.html#sessions" class="nav-item">
+            <span class="nav-icon">◷</span>
+            Sessions
+        </a>
+
+        <div class="nav-title">Manage</div>
+
+        <a href="instructor-dashboard.html#students" class="nav-item">
+            <span class="nav-icon">◎</span>
+            Students
+        </a>
+
+        <a href="profile.html" class="nav-item">
+            <span class="nav-icon">◎</span>
+            Profile
+        </a>
+
+        <a href="instructor-dashboard.html#settings" class="nav-item">
+            <span class="nav-icon">⚙</span>
+            Settings
+        </a>
+
+        <a href="#" class="nav-item" id="logoutBtn" data-logout>
+            <span class="nav-icon">↪️</span>
+            Logout
+        </a>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    class="mobile-menu"
+                    onclick="toggleSidebar()">
+                    ☰
+                </button>
+
+                <a
+                    href="instructor-dashboard.html"
+                    class="back-link">
+                    ← Back to dashboard
+                </a>
+
+            </div>
+
+            <a class="profile-link" href="profile.html" aria-label="Open educator profile" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none">
+                <div class="profile-info"><strong>My account</strong><span>Educator · HobbyNest</span></div>
+                <img class="current-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Educator profile" style="width:37px;height:37px;border-radius:50%;object-fit:cover">
+            </a>
+
+        </header>
+
+
+        <div class="page-content">
+
+            <!-- HEADER -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <h1>Recorded Lectures</h1>
+
+                    <p>
+                        Manage the video lectures you've added to your classes.
+                    </p>
+
+                </div>
+
+                <a
+                    href="edit-class.html"
+                    class="add-btn">
+                    + Add Lecture
+                </a>
+
+            </div>
+
+
+            <!-- STATS -->
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ▶️
+                    </div>
+
+                    <div class="stat-number" id="totalLectures">–</div>
+
+                    <div class="stat-label">
+                        Total Lectures
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👁️
+                    </div>
+
+                    <div class="stat-number" id="statLearners">–</div>
+
+                    <div class="stat-label">
+                        Enrolled Learners
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ⏱️
+                    </div>
+
+                    <div class="stat-number" id="statPreviews">–</div>
+
+                    <div class="stat-label">
+                        Free Previews
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📚
+                    </div>
+
+                    <div class="stat-number" id="statClasses">–</div>
+
+                    <div class="stat-label">
+                        Classes
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SEARCH / FILTER -->
+
+            <div class="toolbar">
+
+                <div class="search-box">
+
+                    <span>🔍</span>
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search lectures..."
+                        oninput="filterLectures()">
+
+                </div>
+
+
+                <select
+                    class="filter-select"
+                    id="categoryFilter"
+                    onchange="filterLectures()">
+
+                    <option value="all">
+                        All Categories
+                    </option>
+
+                    <option value="dance">
+                        Dance
+                    </option>
+
+                    <option value="music">
+                        Music
+                    </option>
+
+                    <option value="art">
+                        Art
+                    </option>
+
+                    <option value="photography">
+                        Photography
+                    </option>
+
+                    <option value="craft">
+                        Craft & DIY
+                    </option>
+
+                    <option value="community">
+                        Community
+                    </option>
+
+                    <option value="programming">
+                        Programming
+                    </option>
+
+                </select>
+
+
+                <select
+                    class="filter-select"
+                    id="classFilter"
+                    onchange="filterLectures()">
+                    <option value="all">All Classes</option>
+                </select>
+
+            </div>
+
+
+            <!-- LECTURES -->
+
+            <div
+                class="lecture-grid"
+                id="lectureGrid">
+                <p style="color:#888">Loading your lectures…</p>
+            </div>
+
+
+            <!-- EMPTY STATE -->
+
+            <div
+                class="empty-state"
+                id="emptyState">
+
+                <div class="emoji">
+                    🎥
+                </div>
+
+                <h3>
+                    No lectures found
+                </h3>
+
+                <p>
+                    Try another search or category, or add a new recorded lecture.
+                </p>
+
+                <a
+                    href="edit-class.html"
+                    class="add-btn">
+                    + Add Lecture
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- ================= WATCH MODAL ================= -->
+
+<div
+    class="modal-overlay"
+    id="watchModal"
+    onclick="closeModal(event)">
+
+    <div class="modal">
+
+        <button
+            class="modal-close"
+            onclick="closeWatchModal()">
+            ×
+        </button>
+
+        <h2 id="modalTitle">
+            Lecture
+        </h2>
+
+        <div class="video-container">
+
+            <iframe
+                id="videoFrame"
+                src=""
+                title="Recorded lecture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+
+        </div>
+
+        <div class="modal-info">
+
+            <p id="modalDescription"></p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= EDIT MODAL ================= -->
+
+<div
+    class="modal-overlay"
+    id="editModal"
+    onclick="closeEditModal(event)">
+
+    <div class="modal">
+
+        <button
+            class="modal-close"
+            onclick="closeEditModal()">
+            ×
+        </button>
+
+        <h2>
+            Edit Lecture
+        </h2>
+
+        <div class="edit-form show">
+
+            <div class="edit-group">
+
+                <label>
+                    Lecture Title
+                </label>
+
+                <input
+                    id="editTitle"
+                    type="text">
+
+            </div>
+
+
+            <div class="edit-group">
+                    <label>Class</label>
+                    <input id="editClass" type="text" disabled>
+                </div>
+
+
+            <div class="edit-group">
+
+                <label>
+                    YouTube URL
+                </label>
+
+                <input
+                    id="editUrl"
+                    type="url"
+                    placeholder="https://youtube.com/watch?v=...">
+
+            </div>
+
+
+            <div class="edit-group">
+
+                <label>Duration</label>
+                    <input id="editDuration" type="text" placeholder="e.g. 12 min">
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    class="modal-btn cancel"
+                    onclick="closeEditModal()">
+                    Cancel
+                </button>
+
+                <button
+                    class="modal-btn save"
+                    onclick="saveLectureEdit()">
+                    Save Changes
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+<!-- EXISTING PROJECT SCRIPTS -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../js/supabase.js?v=13"></script>
+<script src="../../js/guard.js?v=13"></script>
+<script src="../../js/logout.js?v=13"></script>
+<script src="../../js/chatbot.js?v=13"></script>
+<script src="../../js/courses.js?v=13"></script>
+<script src="../../js/recorded-lectures.js?v=13"></script>
+
+</body>
+</html>
