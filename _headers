@@ -2,7 +2,7 @@
 # including drag-and-drop). If you move to a different Supabase project, update
 # the two supabase.co addresses in connect-src.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://images.unsplash.com https://i.ytimg.com https://img.youtube.com https://*.supabase.co; connect-src 'self' https://jrxlhqxphtnhtugaetfw.supabase.co wss://jrxlhqxphtnhtugaetfw.supabase.co https://nominatim.openstreetmap.org https://api.emailjs.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob: https://images.unsplash.com https://i.ytimg.com https://img.youtube.com https://*.supabase.co https://*.tile.openstreetmap.org; connect-src 'self' https://jrxlhqxphtnhtugaetfw.supabase.co wss://jrxlhqxphtnhtugaetfw.supabase.co https://nominatim.openstreetmap.org https://api.emailjs.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://www.openstreetmap.org https://www.google.com https://maps.google.com; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
